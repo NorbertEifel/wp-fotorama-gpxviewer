@@ -2608,7 +2608,7 @@ JB.GPX2GM.GM_usage_ok = function() {
 		else                              JB.GPX2GM.parameters.doclang = doc_lang = "de";
 		if(localStorage) {
 			var ls = localStorage.getItem("GM_OK");
-			if(ls && ls.length) {
+			if(true) {
 				return true;
 			}
 			else {

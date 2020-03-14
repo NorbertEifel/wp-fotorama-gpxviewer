@@ -82,7 +82,7 @@ function show_gpxview($attr, $content = null)
 				$exptime = $Exif["EXIF"]["ExposureTime"];
 				$apperture = strtok($Exif["EXIF"]["FNumber"], '/');
 				$iso = $Exif["EXIF"]["ISOSpeedRatings"];
-				$focal = $Exif["EXIF"]["FocalLengthIn35mmFilm"] . ' mm';
+				$focal = $Exif["EXIF"]["FocalLengthIn35mmFilm"] . 'mm';
 				// Überprüfung von Make und $camera entsprechend setzen
 				$make = $Exif["IFD0"]["Make"];
 				$make = str_replace(' ', '', $make);
@@ -101,8 +101,10 @@ function show_gpxview($attr, $content = null)
 			}
 		}
 	}
-	$csort = array_column($data2, 'sort');
-	array_multisort($csort, SORT_ASC, $data2);
+	if ($id>0) {
+	    $csort = array_column($data2, 'sort');
+	    array_multisort($csort, SORT_ASC, $data2);
+	}
 
 	// GPX-Track-Dateien parsen und prüfen
 	$files = explode(",", $gpxfile);
@@ -120,22 +122,28 @@ function show_gpxview($attr, $content = null)
 		}
 	}
 
-	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist    
+	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist    18mm/ƒ/8.0/1/400s/ISO 200
 	if (strlen($gpxfile) > 3 && ($i > 0)) {
-		$string  .= '<div id="Bilder"><p><button>Vorheriges</button> /   <button>nächstes</button> Bild</p><figure><img alt=" "><figcaption></figcaption></figure></div>';
+		$string .= '<div id=box1>';
+		//Fotorama ab hier
+		if ($id>0) {
+			$string  .= '<div id="Bilder" style="display : none"><figure><img alt=" "><figcaption></figcaption></figure></div>';
+			$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="cover" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
+			foreach ($data2 as $data) {
+				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '" data-caption="'. $data["title"] .'<br> '. $data['camera'].' <br> '.$data['focal'].' / f/'.$data['apperture'].' / '.$data['exptime'].'s / ISO'.$data['iso'].' / '.$data['date'].'">';
+			}
+			$string  .= '</div>';
+	    }
+		$string  .= '<div id=boxmap>';
 		$string  .= '<div id=map0 class="map gpxview:' . $gpxfile . ':OPENTOPO" style="width:100%;height:' . $mapheight . 'px"></div>';
 		$string  .= '<div id="map0_profiles" style="width:100%;height:' . $chartheight . 'px"><div id="map0_hp" class="map" style="width:100%;height:' . $chartheight . 'px"></div></div>';
 		$string  .= '<div id="map0_img">';
-		foreach ($data2 as $data) {
-			$string  .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">' . $data["title"] . '<br>' . $data["camera"] . '</a>';
-		}
-		$string  .= '</div>';
-		//Fotorama ab hier
-		$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-ratio="1.5" data-height="400px" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
-		foreach ($data2 as $data) {
-			$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '" data-caption="' . $data["title"] . '">';
-		}
-		$string  .= '</div>';
+		if ($id>0) {
+		    foreach ($data2 as $data) {
+			    $string  .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">' . $data["title"] . '<br>' . $data["camera"] . '</a>';
+		    }
+	    }
+		$string  .= '</div></div></div>';
 		$string  .= '<script>var Gpxpfad = "' . $gpx_path . '"; var Fullscreenbutton = false; var Arrowtrack = true; var Doclang="' . $lang . '"; ';
 		$string  .= '</script>';
 	}

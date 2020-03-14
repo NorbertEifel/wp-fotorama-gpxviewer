@@ -17,8 +17,5 @@ function wp_gpxviewer_scripts() {
     wp_enqueue_script('wp_gpxviewer_script2', $plugin_url . 'js/script1.js', array( 'jquery' ), '1.10.2', true );
     // Fotorama Styles and Scripts
     
-    
-    //wp_enqueue_script('fr-script2',$plugin_url . 'js/fotorama-script.js', array( 'jquery' ), '1.10.2', true);
-    
   }
 }

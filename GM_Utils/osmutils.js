@@ -88,7 +88,8 @@ JB.Map = function(makemap) {
 //		layers: osm, 
 		closePopupOnClick: false,
 		scrollWheelZoom: makemap.parameters.scrollwheelzoom,
-		tap: false
+		tap: false,
+		keyboard: false
 	} );
 	
 	if(makemap.parameters.unit=="si") L.control.scale({imperial:false}).addTo(this.map); // Mit Maßstab km
