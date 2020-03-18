@@ -1,16 +1,13 @@
 <?php
 
 /**
- * Plugin Name: Fotorama + Wordpress Plugin für den GPXviewer von J. Berkemeier
- * Plugin URI: http://www.mvb1.de/info/
- * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview gpxfile="..."]
- * Version: 0.1
+ * Plugin Name: Fotorama mit GPXviewer Kombination (17.03.2019)
+ * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
+ * Version: 0.4.1
  * Author: Martin von Berg
  * Author URI: http://www.mvb1.de/
  * License: GPL2
  */
-// Anzeige Trackdaten von Anfang an fehlt und rechts unten
-
 // Sicherheitsabfrage
 defined('ABSPATH') || die('Are you ok?');
 
@@ -21,6 +18,7 @@ function show_gpxview($attr, $content = null)
 	// Variablen vordefinieren:
 	$string = '';
 	$files = [];
+	$thumbsdir = 'thumbs';
 
 	// Parameter extrahieren und vordefinieren
 	extract(shortcode_atts(array(
@@ -28,7 +26,9 @@ function show_gpxview($attr, $content = null)
 		'gpxfile' => 'test.gpx',
 		'mapheight' => '450',
 		'chartheight' => '150',
-		'imgpath' => 'Bilder'
+		'imgpath' => 'Bilder',
+		'dload' => 'yes',
+		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider'
 	), $attr));
 
 	// Spracheinstellungen
@@ -51,59 +51,79 @@ function show_gpxview($attr, $content = null)
 	$up_dir = wp_get_upload_dir()['basedir'];
 	$gpx_local = $up_dir . '/' . $gpxpath . '/';
 	$gpx_path = $up_path . '/' . $gpxpath . '/';
-	$path = $up_dir . '/' . $imgpath;
+	$path = $up_dir . '/' . $imgpath; // Pfad zu den Bildern
 
 	$id = 0;
 	// Bilddateien auslesen
 	foreach (glob($path . "/*.jpg") as $file) {
 		// EXIF und IPTC-Daten auslesen und in Array $Exif speichern
-		getimagesize($path . "/" . basename($file), $info);
-		if (isset($info['APP13'])) {
-			$iptc = iptcparse($info['APP13']);
-			if (array_key_exists('2#005', $iptc)) {
-				$title =  $iptc["2#005"][0];
-			} else {
-				$title = 'Galleriebild' . strval($id);
-			}
-		}
-		$jpgdatei = basename($file);
-		$Exif = exif_read_data($file, 0, true);
-		if ($Exif === false) {
-			//echo"Keine Exif-Daten gefunden..";
-			// Überprüfung, wenn keine GPS-Daten enthalten sind : Datei wird nicht angezeigt
-		} else {
-			//$GPSdata = $Exif["GPS"];
-			$lon = getGps($Exif["GPS"]["GPSLongitude"], $Exif["GPS"]['GPSLongitudeRef']);
-			$lat = getGps($Exif["GPS"]["GPSLatitude"], $Exif["GPS"]['GPSLatitudeRef']);
-
-			if ((is_null($lon)) || (is_null($lat))) {
-				// do nothing;
-			} else {
-				$exptime = $Exif["EXIF"]["ExposureTime"];
-				$apperture = strtok($Exif["EXIF"]["FNumber"], '/');
-				$iso = $Exif["EXIF"]["ISOSpeedRatings"];
-				$focal = $Exif["EXIF"]["FocalLengthIn35mmFilm"] . 'mm';
-				// Überprüfung von Make und $camera entsprechend setzen
-				$make = $Exif["IFD0"]["Make"];
-				$make = str_replace(' ', '', $make);
-				if (ctype_alpha($make)) {
-					$make = '';
-					$camera = $Exif["IFD0"]["Model"];
+		$jpgdatei = basename($file, ".jpg");
+		$thumbavail = is_file($path . '/' . $jpgdatei . '_thumb.jpg'); // gibt es zur Bilddatei ein Thumbnail?
+		$thumbinsubdir = is_file($path . '/' . $thumbsdir . '/' . $jpgdatei . '_thumb.jpg'); //gibt es zur Bilddatei ein Thumbnail im Sub-Directory?
+		$isthumb = stripos($jpgdatei, 'thumb'); // Schleife überspringen, wenn jpg eine thumbnail-Datei ist
+		if (!$isthumb) {
+			getimagesize($path . "/" . basename($file), $info);
+			if (isset($info['APP13'])) {
+				$iptc = iptcparse($info['APP13']);
+				if (array_key_exists('2#005', $iptc)) {
+					$title =  $iptc["2#005"][0];
 				} else {
-					$camera = $Exif["IFD0"]["Model"] . ' + ' . $Exif["IFD0"]["Make"];
+					$title = 'Galleriebild' . strval($id);
 				}
-				$datetaken = explode(":", $Exif["EXIF"]["DateTimeOriginal"]); // muss angepasst werden für die Sortierung!
-				$datesort = $Exif["EXIF"]["DateTimeOriginal"];
-				$tags = $iptc["2#025"];
-				$datetaken = strtok((string) $datetaken[2], ' ') . '.' . (string) $datetaken[1] . '.' . (string) $datetaken[0];
-				$data2[] = array('id' => $id, 'lat' => $lat, 'lon' => $lon, 'title' => $title, 'file' => $jpgdatei, 'exptime' => $exptime, 'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags, 'sort' => $datesort);
-				$id++;
+			}
+
+			$Exif = exif_read_data($file, 0, true);
+			$withgps = array_key_exists('GPS',$Exif);
+			if ($withgps === false) {
+				//echo"Keine GPS-Daten vorhanden..";
+				// Wenn keine GPS-Daten enthalten sind : Datei wird nicht angezeigt
+			} else {
+				$lon = getGps($Exif["GPS"]["GPSLongitude"], $Exif["GPS"]['GPSLongitudeRef']);
+				$lat = getGps($Exif["GPS"]["GPSLatitude"], $Exif["GPS"]['GPSLatitudeRef']);
+
+				if ((is_null($lon)) || (is_null($lat))) {
+					// do nothing, GPS-data invalid;
+				} else {
+					$exptime = $Exif["EXIF"]["ExposureTime"] ?? '--';
+					$apperture = strtok(($Exif["EXIF"]["FNumber"] ?? '-'), '/');
+					$iso = $Exif["EXIF"]["ISOSpeedRatings"] ?? '--';
+					if (array_key_exists('FocalLengthIn35mmFilm', $Exif["EXIF"])) {
+						$focal = $Exif["EXIF"]["FocalLengthIn35mmFilm"] . 'mm';
+					} else {
+						$focal = '--mm';
+					}
+					// Überprüfung von Make und $camera entsprechend setzen
+					$make = $Exif["IFD0"]["Make"] ?? '';
+					$make = str_replace(' ', '', $make);
+					if (!ctype_alpha($make)) {
+						$camera = $Exif["IFD0"]["Model"] . ' + ' . $Exif["IFD0"]["Make"];
+					} else {
+						$camera = $Exif["IFD0"]["Model"];
+					}
+					$datetaken = explode(":", $Exif["EXIF"]["DateTimeOriginal"]);
+					$datesort = $Exif["EXIF"]["DateTimeOriginal"];
+					$tags = $iptc["2#025"] ?? $title;
+					if (array_key_exists('ImageDescription', $Exif["IFD0"])) {
+						$description = $Exif["IFD0"]["ImageDescription"];
+					} elseif ((!empty($tags) && is_array($tags))) {
+						$description = implode(", ", $tags);
+					} else {
+						$description = $tags;
+					}
+					$datetaken = strtok((string) $datetaken[2], ' ') . '.' . (string) $datetaken[1] . '.' . (string) $datetaken[0];
+					$data2[] = array(
+						'id' => $id, 'lat' => $lat, 'lon' => $lon, 'title' => $title, 'file' => $jpgdatei, 'exptime' => $exptime,
+						'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags,
+						'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
+					);
+					$id++;
+				}
 			}
 		}
 	}
-	if ($id>0) {
-	    $csort = array_column($data2, 'sort');
-	    array_multisort($csort, SORT_ASC, $data2);
+	if ($id > 0) {
+		$csort = array_column($data2, 'sort');
+		array_multisort($csort, SORT_ASC, $data2);
 	}
 
 	// GPX-Track-Dateien parsen und prüfen
@@ -122,31 +142,62 @@ function show_gpxview($attr, $content = null)
 		}
 	}
 
-	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist    18mm/ƒ/8.0/1/400s/ISO 200
-	if (strlen($gpxfile) > 3 && ($i > 0)) {
-		$string .= '<div id=box1>';
-		//Fotorama ab hier
-		if ($id>0) {
-			$string  .= '<div id="Bilder" style="display : none"><figure><img alt=" "><figcaption></figcaption></figure></div>';
-			$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="cover" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
-			foreach ($data2 as $data) {
-				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '" data-caption="'. $data["title"] .'<br> '. $data['camera'].' <br> '.$data['focal'].' / f/'.$data['apperture'].' / '.$data['exptime'].'s / ISO'.$data['iso'].' / '.$data['date'].'">';
+	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist 
+	$string .= '<div id=box1>';
+	$imgnr = 1;
+	//Fotorama ab hier
+	if ($id > 0) {
+		$string  .= '<div id="Bilder" style="display : none"><figure><img alt="' . $alttext . '"><figcaption></figcaption></figure></div>';
+		$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="contain" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
+		foreach ($data2 as $data) {
+			if ($data['thumbinsubdir']) {
+				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
+				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
+				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
+			} elseif ($data['thumbavail']) {
+				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
+				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
+				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
+			} else {
+				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
 			}
-			$string  .= '</div>';
-	    }
+			$imgnr++;
+		}
+		$string  .= '</div>';
+	}
+
+	// Map nur bei gültigen GPX-Dateien
+	if (strlen($gpxfile) > 3 && ($i > 0)) {
 		$string  .= '<div id=boxmap>';
 		$string  .= '<div id=map0 class="map gpxview:' . $gpxfile . ':OPENTOPO" style="width:100%;height:' . $mapheight . 'px"></div>';
 		$string  .= '<div id="map0_profiles" style="width:100%;height:' . $chartheight . 'px"><div id="map0_hp" class="map" style="width:100%;height:' . $chartheight . 'px"></div></div>';
 		$string  .= '<div id="map0_img">';
-		if ($id>0) {
-		    foreach ($data2 as $data) {
-			    $string  .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">' . $data["title"] . '<br>' . $data["camera"] . '</a>';
-		    }
-	    }
-		$string  .= '</div></div></div>';
-		$string  .= '<script>var Gpxpfad = "' . $gpx_path . '"; var Fullscreenbutton = false; var Arrowtrack = true; var Doclang="' . $lang . '"; ';
-		$string  .= '</script>';
 	}
+	// Bildinfo ausgeben, auch für SEO! 
+	foreach ($data2 as $data) {
+		if ($data['thumbinsubdir']) {
+			$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
+				. $data["title"] . '<br>' . $data["camera"] . '</a>';
+		} elseif ($data['thumbavail']) {
+			$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
+				. $data["title"] . '<br>' . $data["camera"] . '</a>';
+		} else {
+			$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
+				. $data["title"] . '<br>' . $data["camera"] . '</a>';
+		}
+	}
+
+	if (strlen($gpxfile) > 3 && ($i > 0)) {
+		$string  .= '</div></div>';
+	}
+	$string  .= '</div>';
+	if (($dload == 'yes') && ($i == 1)) {
+		$string .= '<p><strong>GPX-Datei: <a download="' . $gpxfile . '" href="' . $gpx_path . $gpxfile . '">Download GPX-Datei</a></strong></p>';
+	}
+	$string  .= '<script>var g_numb_gpxfiles = "' . $i . '"; var Gpxpfad = "' . $gpx_path . '"; var Fullscreenbutton = false; var Arrowtrack = true; 
+	var Doclang="' . $lang . '"; ';
+	$string  .= '</script>';
+
 	return $string;
 }
 

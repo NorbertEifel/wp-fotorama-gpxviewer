@@ -5,7 +5,6 @@
     var mapdiv = document.getElementById("map0");
     var img = document.querySelector("#Bilder img");
     var figcaption = document.querySelector("#Bilder figcaption");
-    //var buttons = document.querySelectorAll("#Bilder button");
     var images = [], nr = 0, ct = 0;
     window.JB = window.JB || {};
     window.JB.GPX2GM = window.JB.GPX2GM || {};
@@ -13,7 +12,7 @@
     function setImage(nr) {
         if(nr < 0) nr = images.length - 1;
         if(nr >= images.length) nr = 0;
-        console.log(nr);
+        //console.log(nr);
         img.src = images[images[nr].marker.nr].src;
         figcaption.innerHTML = images[nr].text;
         if(marker) JB.RemoveElement(marker);
@@ -23,7 +22,7 @@
         }
         
     JB.GPX2GM.callback = function(pars) {
-    console.log(pars.type);
+    //console.log(pars.type);
     if(pars.type == "Map_n") {
         map = mapdiv.makeMap.GetMap();
         }
@@ -53,7 +52,9 @@
         function (e, fotorama, extra) {
             var index = fotorama.activeIndex;
             if(marker) JB.RemoveElement(marker);
-            marker = map.Marker({lat:images[index].coord.lat,lon:images[index].coord.lon},JB.icons.Kreis)[0];
+            if (g_numb_gpxfiles>0) {
+                marker = map.Marker({lat:images[index].coord.lat,lon:images[index].coord.lon},JB.icons.Kreis)[0];
+            }
         });
 
     jQuery(window).load(function ()
@@ -68,7 +69,6 @@
         jQuery(".JBinfofenster").css("left",'');
         jQuery(".JBinfofenster").css("bottom",'20px');
         jQuery(".JBinfofenster").css("right",'10px');
-        
         }, 100); });	
         
 })(window, document);

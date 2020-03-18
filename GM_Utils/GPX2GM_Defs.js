@@ -34,7 +34,7 @@ JB.Icons = function(baseurl) {
 	this.Streckenmarker 		= { icon:   { anchor: {x:11,y:11}, url: baseurl+"Icons/streckenmarker.svg", 
 											scaledSize: { width: 21, height: 21, widthUnit: "px", heightUnit: "px" },
 											size: { width: 21, height: 21, widthUnit: "px", heightUnit: "px" } } };
-	this.Kreis			= { icon:   { anchor: {x:38,y:38}, url: baseurl+"Icons/kreis.png" } };
+	this.Kreis			= { icon:   { anchor: {x:25,y:43}, url: baseurl+"Icons/kreis.png" } };
 	this.marker_bw	= { icon:   { anchor: {x:12,y:37}, url: baseurl+"Icons/marker-icon_bw.png" } };
 	this.CL   			= { icon:   { anchor: {x:26,y:26}, url: baseurl+"Icons/current_location.svg", 
 											scaledSize: { width: 51, height: 51, widthUnit: "px", heightUnit: "px" },
