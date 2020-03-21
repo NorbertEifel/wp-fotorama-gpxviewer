@@ -5,8 +5,8 @@
    4. 12. 2019 */
 
 .JBinfofenster { position:absolute; z-index:1000; margin-top:0px; margin-left:0px; border:1px solid #aaa; border-radius:3px; 
-                box-shadow:1px 1px 5px #aaa; background-color:white; padding:0.5em; line-height:1.2em; 
-								max-width:50%; color: black; height: fit-content; width: fit-content; } 
+                 background-color:white; padding:0.5em; line-height:1.2em; /*box-shadow:1px 1px 5px #aaa;*/
+		 max-width:50%; color: black; height: fit-content; width: fit-content; } 
 .JBinfofenster strong { font-size:1.2em }
 
 .JBinfofenster_gm { color: black !important }

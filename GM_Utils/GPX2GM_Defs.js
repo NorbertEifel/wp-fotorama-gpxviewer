@@ -169,8 +169,8 @@ JB.GPX2GM.setparameters = function() {
 	JB.GPX2GM.parameters.shtrh = (typeof(Shtrh)!="undefined") ? Shtrh : true;
 	JB.GPX2GM.parameters.shtrrr = (typeof(Shtrrr)!="undefined") ? Shtrrr : true;
 	JB.GPX2GM.parameters.shtrs = (typeof(Shtrs)!="undefined") ? Shtrs : true;
-	JB.GPX2GM.parameters.shtrhr = (typeof(Shtrhr)!="undefined") ? Shtrhr : true;
-	JB.GPX2GM.parameters.shtrcad = (typeof(Shtrcad)!="undefined") ? Shtrcad : true;
+	JB.GPX2GM.parameters.shtrhr = (typeof(Shtrhr)!="undefined") ? Shtrhr : false; //Martin
+	JB.GPX2GM.parameters.shtrcad = (typeof(Shtrcad)!="undefined") ? Shtrcad : false; //Martin
 	JB.GPX2GM.parameters.shtratemp = (typeof(Shtratemp)!="undefined") ? Shtratemp : true;
 	JB.GPX2GM.parameters.shtrvmitt = (typeof(Shtrvmitt)!="undefined") ? Shtrvmitt : false;
 	JB.GPX2GM.parameters.shtrvmittwob = (typeof(Shtrvmittwob)!="undefined") ? Shtrvmittwob : false;
