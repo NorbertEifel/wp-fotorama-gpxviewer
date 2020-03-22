@@ -1,7 +1,7 @@
 "use strict";
 
 (function (window, document, undefined) {
-    var marker = null, map;
+    var marker = null, map, makemap, scale;
     var mapdiv = document.getElementById("map0");
     var img = document.querySelector("#Bilder img");
     var figcaption = document.querySelector("#Bilder figcaption");
@@ -17,6 +17,7 @@
         figcaption.innerHTML = images[nr].text;
         if(marker) JB.RemoveElement(marker);
         marker = map.Marker({lat:images[nr].coord.lat,lon:images[nr].coord.lon},JB.icons.Kreis)[0];
+        //makemap.Rescale(images[nr].coord.lat,images[nr].coord.lon,1); // <-------------------------------------
         fotorama.show(nr);
         return nr;
         }
@@ -24,7 +25,8 @@
     JB.GPX2GM.callback = function(pars) {
     //console.log(pars.type);
     if(pars.type == "Map_n") {
-        map = mapdiv.makeMap.GetMap();
+        makemap = mapdiv.makeMap;  // <--------------------------------------
+        map = makemap.GetMap();    // <--------------------------------------
         }
     if(pars.type == "created_Marker_Bild") {
         images[ct] =  {src: pars.src, text: pars.text, marker: pars.marker, coord: pars.coord};
@@ -40,6 +42,20 @@
         nr = setImage(nr);
         return false;
     }
+    if(pars.type == "Tracks_n") {  // <-------------------------------------- ff
+        var infofenster = JB.Infofenster(map.map);
+        infofenster.content(pars.gpxdaten.tracks.track[0].info);
+        //infofenster.show();
+        //var infodata = infofenster.fenstercontainer.childNodes[2].data.split(/[\s:]+/); 
+        /*strecke = setscale(infodata[1]);
+        scale = parseFloat(infodata[1])/30;
+        
+        if (scale<1.0) {
+            scale = 1.0; // entspricht 500m Strich
+        };
+        */
+        return;
+    }
     return true;
     }
 
@@ -50,10 +66,11 @@
   
     jQuery('.fotorama').on('fotorama:showend ',
         function (e, fotorama, extra) {
-            var index = fotorama.activeIndex;
+            var nr = fotorama.activeIndex;
             if(marker) JB.RemoveElement(marker);
             if (g_numb_gpxfiles>0) {
-                marker = map.Marker({lat:images[index].coord.lat,lon:images[index].coord.lon},JB.icons.Kreis)[0];
+                marker = map.Marker({lat:images[nr].coord.lat,lon:images[nr].coord.lon},JB.icons.Kreis)[0];
+                makemap.Rescale(images[nr].coord.lat,images[nr].coord.lon,g_maprescale); // <-------------------------------------
             }
         });
 
@@ -65,10 +82,12 @@
         // safe to execute your code here
         jQuery("#map_headmap0 > button").css("background","lightgray");
         jQuery("#map_headmap0 > button").append('Alles anzeigen ');
+        /*
         jQuery(".JBinfofenster").css("top",'');
         jQuery(".JBinfofenster").css("left",'');
         jQuery(".JBinfofenster").css("bottom",'20px');
         jQuery(".JBinfofenster").css("right",'10px');
-        }, 100); });	
+        */
+    }, 100); });	
         
 })(window, document);

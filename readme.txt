@@ -47,13 +47,13 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
     oder in fotorama.dev.js ab Zeile 880 unter "OPTIONS = {..."
     
     1.5 TODO
-    Umschaltung "data-fit" zwischen Inline-Anzeige und fullscreen-Anzeige: Keine Kontaktdaten vom Entwickler verfügbar und Debugging mit Chrome geht nicht. 
+    Minor: Umschaltung "data-fit" zwischen Inline-Anzeige und fullscreen-Anzeige: Keine Kontaktdaten vom Entwickler verfügbar und Debugging mit Chrome geht nicht. 
 
 2. GPXVIEWER-Bedienung:    
     1.1. Vorbereitung
     - OPTIONAL: GPX-Tracks verkleinern: mit Batch-Datei: FOR %%i In (*.gpx) do GPSBabel -i gpx -f %%~i -x simplify,count=100 -o GPX -F %%~ni.gpx (Datei: GPS_Babel_GPX_Reducet.bat)
       Anzahl der Punkte unter count
-      TODO: Alle Daten, außer lat, long, ele aus dem GPX entfernen
+      Minor: TODO: Alle Daten, außer lat, long, ele aus dem GPX entfernen
 
     1.2. GPX-Tracks hochladen
     - Tracks im Ordner  ./wp-content/uploads/gpx hochladen.
@@ -65,6 +65,7 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
         Ohne Angabe des Ordners wird der Standard-Ordner ./wp-content/uploads/gpx/ verwendet.
         Angaben mehrer Dateien ist möglich. Verwendung einer Kommma-getrennten Liste z.B.: gpxfile="Malle.gpx, Malle2.gpx, Malle3.gpx"
         Die Angabe der Erweiterung *.gpx ist immer nötig.
+    - Infofenster mit Trackdaten wird von Anfang an angezeigt. Es werden aber nur die Daten des 1. Tracks angezeigt!   
         
     1.4 GPX-Viewer-Optionen: Ohne Angabe werden die Default-Werte verwendet
         Höhe der Karte: mapheight=300. Default : 450. Keine Anführungszeichen!
@@ -92,15 +93,15 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
             Andere Plugins wurden nicht getestet.   
 
     1.5. TODO & Bugs
-        - Anzeige Infofenster mit Trackdaten von Anfang an, nicht erst bei MousOver-Track.
-        - Zentrieren der Karte auf den aktiven Bilder-Marker.
-        - Angabe Info im Impressum. 
-        - BUG: wenn die Wegpunkte einmal de- / re-aktiviert werden, folgt der Kreis nicht mehr dem Bild! Die Seite muss dann neu geladen werden! 
+        - Mean: BUG: wenn die Wegpunkte einmal de- / re-aktiviert werden, folgt der Kreis nicht mehr dem Bild! Die Seite muss dann neu geladen werden! 
+        - Minor: Minfiy der Dateien aus GMUTILS funktioniert nicht.
 
     3. Komination Fotorama + GPXViewer:
         3.1. Bedienung wie oben mit gemeinsamer Verwendung der Optionen 
             Das erzeugt den Slider oben und die Karte unten. Der Marker auf der Karte folgt dem im Slider angezeigten Bild.
-            Achtung: Bilder OHNE GPS-Daten im EXIF werden NICHT angezeigt.       
+            Achtung: Bilder OHNE GPS-Daten im EXIF werden NICHT angezeigt. 
+            Die Karte zentriert auf das jeweils in Fotorama anzeigte Bild. Die Skalierung auf 500m-Strich ist dabei fix. Eine vom User gewählte 
+            Skalierung wird bei Umschaltung des Bildes zurückgesetzt.      
 		
 		
 		

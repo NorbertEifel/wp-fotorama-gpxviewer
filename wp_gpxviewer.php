@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Fotorama mit GPXviewer Kombination (17.03.2019)
  * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
- * Version: 0.4.1
+ * Version: 0.5.1
  * Author: Martin von Berg
  * Author URI: http://www.mvb1.de/
  * License: GPL2
@@ -28,7 +28,8 @@ function show_gpxview($attr, $content = null)
 		'chartheight' => '150',
 		'imgpath' => 'Bilder',
 		'dload' => 'yes',
-		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider'
+		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider',
+		'scale' => 1.0
 	), $attr));
 
 	// Spracheinstellungen
@@ -195,7 +196,7 @@ function show_gpxview($attr, $content = null)
 		$string .= '<p><strong>GPX-Datei: <a download="' . $gpxfile . '" href="' . $gpx_path . $gpxfile . '">Download GPX-Datei</a></strong></p>';
 	}
 	$string  .= '<script>var g_numb_gpxfiles = "' . $i . '"; var Gpxpfad = "' . $gpx_path . '"; var Fullscreenbutton = false; var Arrowtrack = true; 
-	var Doclang="' . $lang . '"; ';
+	var Doclang="' . $lang . '"; var g_maprescale = '. $scale .'';
 	$string  .= '</script>';
 
 	return $string;
