@@ -175,19 +175,21 @@ function show_gpxview($attr, $content = null)
 		$string  .= '<div id="map0_img">';
 	}
 	// Bildinfo ausgeben, auch für SEO! 
-	foreach ($data2 as $data) {
-		if ($data['thumbinsubdir']) {
-			$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
-				. $data["title"] . '<br>' . $data["camera"] . '</a>';
-		} elseif ($data['thumbavail']) {
-			$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
-				. $data["title"] . '<br>' . $data["camera"] . '</a>';
-		} else {
-			$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
-				. $data["title"] . '<br>' . $data["camera"] . '</a>';
+	if ($id > 0) {
+		foreach ($data2 as $data) {
+			if ($data['thumbinsubdir']) {
+				$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
+					. $data["title"] . '<br>' . $data["camera"] . '</a>';
+			} elseif ($data['thumbavail']) {
+				$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
+					. $data["title"] . '<br>' . $data["camera"] . '</a>';
+			} else {
+				$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
+					. $data["title"] . '<br>' . $data["camera"] . '</a>';
+			}
 		}
 	}
-
+	
 	if (strlen($gpxfile) > 3 && ($i > 0)) {
 		$string  .= '</div></div>';
 	}
