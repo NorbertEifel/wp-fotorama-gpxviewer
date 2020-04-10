@@ -14,6 +14,16 @@ Here is a short description of the plugin. This should be no more
 
 Anzeige Bildergallerie als Fotorama-Image-Slider kombiniert mit
 Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
+Übersicht der Shortcodes:
+        'gpxpath' => 'gpx',
+		'gpxfile' => 'test.gpx',
+		'mapheight' => '450',
+		'chartheight' => '150',
+		'imgpath' => 'Bilder',
+		'dload' => 'yes',
+		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider',
+		'scale' => 1.0,
+		'setpostgps' => 'no' // Nur für neue Posts einmalig auf "yes" setzen!
 
 1.Slider-Bedienung (Fotorama)
     1.1. Vorbereitung

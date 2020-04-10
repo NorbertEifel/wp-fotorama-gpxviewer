@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Fotorama mit GPXviewer Kombination (17.03.2019)
  * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
- * Version: 0.5.1
+ * Version: 0.5.2
  * Author: Martin von Berg
  * Author URI: http://www.mvb1.de/
  * License: GPL2
@@ -29,7 +29,8 @@ function show_gpxview($attr, $content = null)
 		'imgpath' => 'Bilder',
 		'dload' => 'yes',
 		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider',
-		'scale' => 1.0
+		'scale' => 1.0,
+		'setpostgps' => 'no' // Nur für neue Posts einmalig auf "yes" setzen!
 	), $attr));
 
 	// Spracheinstellungen
@@ -53,6 +54,7 @@ function show_gpxview($attr, $content = null)
 	$gpx_local = $up_dir . '/' . $gpxpath . '/';
 	$gpx_path = $up_path . '/' . $gpxpath . '/';
 	$path = $up_dir . '/' . $imgpath; // Pfad zu den Bildern
+	$postid = get_the_ID();
 
 	$id = 0;
 	// Bilddateien auslesen
@@ -94,12 +96,22 @@ function show_gpxview($attr, $content = null)
 						$focal = '--mm';
 					}
 					// Überprüfung von Make und $camera entsprechend setzen
-					$make = $Exif["IFD0"]["Make"] ?? '';
-					$make = str_replace(' ', '', $make);
-					if (!ctype_alpha($make)) {
-						$camera = $Exif["IFD0"]["Model"] . ' + ' . $Exif["IFD0"]["Make"];
+					if (array_key_exists('Make', $Exif['IFD0'])) {
+						$make = $Exif["IFD0"]["Make"] ?? '';
+						$make = preg_replace('/\s+/', ' ', $make);
 					} else {
-						$camera = $Exif["IFD0"]["Model"];
+						$make = '';
+					}
+					
+					if (array_key_exists('Model', $Exif['IFD0'])) {
+						$model = $Exif["IFD0"]["Model"];
+					} else {
+						$model = '';
+					}
+					if (!ctype_alpha($make) && strlen($make)>0) {
+						$camera = $model . ' + '. $make;
+					} else {
+						$camera = $model;
 					}
 					$datetaken = explode(":", $Exif["EXIF"]["DateTimeOriginal"]);
 					$datesort = $Exif["EXIF"]["DateTimeOriginal"];
@@ -117,6 +129,10 @@ function show_gpxview($attr, $content = null)
 						'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags,
 						'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
 					);
+					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
+					if (($setpostgps == 'yes') && (0 == $id)) {
+						wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
+					}
 					$id++;
 				}
 			}
@@ -126,7 +142,7 @@ function show_gpxview($attr, $content = null)
 		$csort = array_column($data2, 'sort');
 		array_multisort($csort, SORT_ASC, $data2);
 	}
-
+	
 	// GPX-Track-Dateien parsen und prüfen
 	$files = explode(",", $gpxfile);
 	$i = 0;
@@ -136,6 +152,15 @@ function show_gpxview($attr, $content = null)
 			$files[$i] = $f;
 			if ($i == 0) {
 				$gpxfile .= $f;
+				// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
+				if ($setpostgps == 'yes') {
+					$gpxdata = simplexml_load_file($gpx_path . $f);
+					$lat = (string) $gpxdata->trk->trkseg->trkpt[0]['lat'];
+					if (strlen($lat)<1) {$lat = (string) $gpxdata->trk->trkpt[0]['lat'];}
+					$lon = (string) $gpxdata->trk->trkseg->trkpt[0]['lon']; 
+					if (strlen($lon)<1) {$lon = (string) $gpxdata->trk->trkpt[0]['lon'];}
+					wp_setpostgps($postid, $lat, $lon);
+				}	
 			} else {
 				$gpxfile .= ',' . $f;
 			}
@@ -249,4 +274,23 @@ function gps2Num($coordPart)
 		return $parts[0];
 
 	return floatval($parts[0]) / floatval($parts[1]);
+}
+
+function wp_setpostgps($pid, $lat, $lon)
+{
+	// es wurde vorab schon geprüft, dass die Werte $lat und $lon existieren. Stimmt nur für setzen aus Foto
+	// Wenn Struktur GPX-XML abweicht, dann liefert simplexml leere Strings
+	$oldlat = get_post_meta($pid,'lat');
+	$oldlon = get_post_meta($pid,'lon');
+	if ((count($oldlon)==0) && (count($oldlat)==0)) {
+		update_post_meta($pid,'lat',$lat,''); 
+		update_post_meta($pid,'lon',$lon,'');
+		echo ('Update Post-Meta lat und lon');
+	} elseif (strlen($oldlon[0]<1) && strlen($oldlat[0]<1)) {
+		delete_post_meta($pid,'lat');
+		delete_post_meta($pid,'lon');
+		update_post_meta($pid,'lat',$lat,''); 
+		update_post_meta($pid,'lon',$lon,'');
+		echo ('Update Post-Meta lat und lon');
+	}
 }
