@@ -179,13 +179,13 @@ function show_gpxview($attr, $content = null)
 			if ($data['thumbinsubdir']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
+				$string .= '<img alt = "alttest2" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
 			} elseif ($data['thumbavail']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
+				$string .= '<img alt = "alttest2" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
 			} else {
-				$string .= '<img src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
+				$string .= '<img alt = "alttest2" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
 			}
 			$imgnr++;
 		}
