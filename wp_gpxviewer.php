@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Fotorama mit GPXviewer Kombination (17.03.2019)
  * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
- * Version: 0.5.2
+ * Version: 0.6.0
  * Author: Martin von Berg
  * Author URI: http://www.mvb1.de/
  * License: GPL2
@@ -18,7 +18,7 @@ function show_gpxview($attr, $content = null)
 	// Variablen vordefinieren:
 	$string = '';
 	$files = [];
-	$thumbsdir = 'thumbs';
+	$thumbsdir = 'thumbs'; // des is jetzt mal fix
 
 	// Parameter extrahieren und vordefinieren
 	extract(shortcode_atts(array(
@@ -28,7 +28,7 @@ function show_gpxview($attr, $content = null)
 		'chartheight' => '150',
 		'imgpath' => 'Bilder',
 		'dload' => 'yes',
-		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider',
+		'alttext' => 'Fotorama Bildergalerie als Javascript-Slider',
 		'scale' => 1.0,
 		'setpostgps' => 'no' // Nur für neue Posts einmalig auf "yes" setzen!
 	), $attr));
@@ -61,9 +61,30 @@ function show_gpxview($attr, $content = null)
 	foreach (glob($path . "/*.jpg") as $file) {
 		// EXIF und IPTC-Daten auslesen und in Array $Exif speichern
 		$jpgdatei = basename($file, ".jpg");
-		$thumbavail = is_file($path . '/' . $jpgdatei . '_thumb.jpg'); // gibt es zur Bilddatei ein Thumbnail?
-		$thumbinsubdir = is_file($path . '/' . $thumbsdir . '/' . $jpgdatei . '_thumb.jpg'); //gibt es zur Bilddatei ein Thumbnail im Sub-Directory?
-		$isthumb = stripos($jpgdatei, 'thumb'); // Schleife überspringen, wenn jpg eine thumbnail-Datei ist
+
+		$thumb150   = is_file($path . '/' . $jpgdatei . '-150x150.jpg');
+		$thumbhyph  = is_file($path . '/' . $jpgdatei . '-thumb.jpg');
+		$thumbunder = is_file($path . '/' . $jpgdatei . '_thumb.jpg');
+		//$thumbavail = is_file($path . '/' . $jpgdatei . '_thumb.jpg'); // gibt es zur Bilddatei ein Thumbnail?
+		$thumbavail = false;
+		$thumbavail = $thumb150 || $thumbhyph || $thumbunder;
+		if ($thumb150) {$thumbs = '-150x150.jpg';}
+		elseif ($thumbhyph) {$thumbs = '-thumb.jpg';}
+		elseif ($thumbunder) {$thumbs = '_thumb.jpg';}
+		
+		$thumbinsubdir = false;
+		if (!$thumbavail){
+			$thumb150   = is_file($path . '/' . $thumbsdir . '/'. $jpgdatei . '-150x150.jpg');
+			$thumbhyph  = is_file($path . '/' . $thumbsdir . '/'. $jpgdatei . '-thumb.jpg');
+			$thumbunder = is_file($path . '/' . $thumbsdir . '/'. $jpgdatei . '_thumb.jpg');
+			$thumbinsubdir = $thumb150 || $thumbhyph || $thumbunder;
+			if ($thumb150) {$thumbs = '-150x150.jpg';}
+			elseif ($thumbhyph) {$thumbs = '-thumb.jpg';}
+			elseif ($thumbunder) {$thumbs = '_thumb.jpg';}
+		}
+		//$thumbinsubdir = is_file($path . '/' . $thumbsdir . '/' . $jpgdatei . '_thumb.jpg'); //gibt es zur Bilddatei ein Thumbnail im Sub-Directory?
+
+		$isthumb = stripos($jpgdatei, 'thumb') || stripos($jpgdatei, 'x'); // Schleife überspringen, wenn jpg eine thumbnail-Datei ist
 		if (!$isthumb) {
 			getimagesize($path . "/" . basename($file), $info);
 			if (isset($info['APP13'])) {
@@ -71,7 +92,7 @@ function show_gpxview($attr, $content = null)
 				if (array_key_exists('2#005', $iptc)) {
 					$title =  $iptc["2#005"][0];
 				} else {
-					$title = 'Galleriebild' . strval($id);
+					$title = 'Galeriebild' . strval($id);
 				}
 			}
 
@@ -80,6 +101,8 @@ function show_gpxview($attr, $content = null)
 			if ($withgps === false) {
 				//echo"Keine GPS-Daten vorhanden..";
 				// Wenn keine GPS-Daten enthalten sind : Datei wird nicht angezeigt
+				// Achtung: Diese Abfrage sortiert die von WP erzeugten kleineren Bilder aus. Diese enthalten KEINE GPS-Daten. 
+				// Sollte das geändert werden, funktioniert das hier nicht mehr!
 			} else {
 				$lon = getGps($Exif["GPS"]["GPSLongitude"], $Exif["GPS"]['GPSLongitudeRef']);
 				$lat = getGps($Exif["GPS"]["GPSLatitude"], $Exif["GPS"]['GPSLatitudeRef']);
@@ -173,19 +196,21 @@ function show_gpxview($attr, $content = null)
 	$imgnr = 1;
 	//Fotorama ab hier
 	if ($id > 0) {
-		$string  .= '<div id="Bilder" style="display : none"><figure><img alt="' . $alttext . '"><figcaption></figcaption></figure></div>';
+		$string  .= '<div id="Bilder" style="display : none"><figure><img alt="' . $alttext . '"><figcaption></figcaption></figure></div>'; // sieht unnötig aus, aber es geht nur so
 		$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="contain" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
+		
 		foreach ($data2 as $data) {
+			$alttext = 'Galerie-Bild ' . $imgnr . ' von ' .$id . ': ' . $data["title"] . '. ' . $data["descr"]; //Bildinfo ausgeben für SEO!
 			if ($data['thumbinsubdir']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img alt = "alttest2" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
+				$string .= '<img alt = "' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>';
 			} elseif ($data['thumbavail']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img alt = "alttest2" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '"></a>';
+				$string .= '<img alt = "' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>';
 			} else {
-				$string .= '<img alt = "alttest2" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
+				$string .= '<img alt = "' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
 			}
 			$imgnr++;
 		}
@@ -199,18 +224,15 @@ function show_gpxview($attr, $content = null)
 		$string  .= '<div id="map0_profiles" style="width:100%;height:' . $chartheight . 'px"><div id="map0_hp" class="map" style="width:100%;height:' . $chartheight . 'px"></div></div>';
 		$string  .= '<div id="map0_img">';
 	}
-	// Bildinfo ausgeben, auch für SEO! 
+	// Markerbilder anlegen 
 	if ($id > 0) {
 		foreach ($data2 as $data) {
 			if ($data['thumbinsubdir']) {
-				$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
-					. $data["title"] . '<br>' . $data["camera"] . '</a>';
+				$string  .= '<a class="gpxpluga"  href="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '"></a>';
 			} elseif ($data['thumbavail']) {
-				$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '_thumb.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
-					. $data["title"] . '<br>' . $data["camera"] . '</a>';
+				$string  .= '<a class="gpxpluga"  href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . $thumbs . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '"></a>';
 			} else {
-				$string  .= '<a class="gpxpluga" alt="' . $data['descr'] . '" href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '">'
-					. $data["title"] . '<br>' . $data["camera"] . '</a>';
+				$string  .= '<a class="gpxpluga"  href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-geo="lat:' . $data["lat"] . ',lon:' . $data["lon"] . '"></a>';
 			}
 		}
 	}

@@ -132,6 +132,8 @@ There are no FAQ just yet.
 = 0.4.0 =
 *   First release: 18.03.2020
 
+= 0.6.0 =
+
 == Upgrade Notice ==
 
 There is no need to upgrade just yet.
