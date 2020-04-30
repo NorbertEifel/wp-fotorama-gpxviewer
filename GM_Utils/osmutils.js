@@ -859,8 +859,8 @@ JB.Infofenster = function(map){
 		this.fenstercontainer.style.padding = ".3em";
 		//this.fenstercontainer.style.maxWidth = "10em";
 		this.fenstercontainer.style.position = "absolute";
-		this.fenstercontainer.style.top = "10px";
-		this.fenstercontainer.style.left =  "50px";
+		this.fenstercontainer.style.bottom = "25px";
+		this.fenstercontainer.style.right =  "10px";
 		this.fenstercontainer.style.zIndex = "1000";
 		JB.addClass("JBinfofenster",this.fenstercontainer);
 		map.getContainer().appendChild(this.fenstercontainer);

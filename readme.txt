@@ -106,7 +106,7 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
         - Mean: BUG: wenn die Wegpunkte einmal de- / re-aktiviert werden, folgt der Kreis nicht mehr dem Bild! Die Seite muss dann neu geladen werden! 
         - Minor: Minfiy der Dateien aus GMUTILS funktioniert nicht.
 
-    3. Komination Fotorama + GPXViewer:
+    3. Kombination Fotorama + GPXViewer:
         3.1. Bedienung wie oben mit gemeinsamer Verwendung der Optionen 
             Das erzeugt den Slider oben und die Karte unten. Der Marker auf der Karte folgt dem im Slider angezeigten Bild.
             Achtung: Bilder OHNE GPS-Daten im EXIF werden NICHT angezeigt. 
@@ -123,6 +123,12 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
 2. Activate the plugin through the 'Plugins' menu in WordPress
 4. Fertig. Keine weiteren Settings nötig
 
+== Update des Plugins ==
+
+1. Deaktivieren
+2. löschen
+3. Weiter mit Installation
+
 == Frequently Asked Questions ==
 
 There are no FAQ just yet.
@@ -133,6 +139,13 @@ There are no FAQ just yet.
 *   First release: 18.03.2020
 
 = 0.6.0 =
+*   3rd release: 22.04.2020
+ - SEO Opimierung für Fotorama (alt-tags mit title-Inhalt aus dem Bild in den img-Tags)
+ - Variable Verarbeitung der thumbnails bei verschiedenen Endungen und Orten
+ - Post GEO-Daten für Übersichtskarte werden jetzt nach Bild oder GPX-Track gesetzt, Option für den Shortcode ergänzt
+ - scale-Faktor ergänzt: Dieser setzt den Faktor die Umskalierung bei Focus und Zentrierung auf das aktive Bild
+ - fotorama.js aus der Development-Version ergänzt und minified
+ - JB.Infofenster jetzt rechts unten. Änderung in osmutils.js
 
 == Upgrade Notice ==
 

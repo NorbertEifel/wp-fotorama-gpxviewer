@@ -143,8 +143,10 @@ function show_gpxview($attr, $content = null)
 						$description = $Exif["IFD0"]["ImageDescription"];
 					} elseif ((!empty($tags) && is_array($tags))) {
 						$description = implode(", ", $tags);
+						$description = ""; // Tags kommen doch nicht in den Alt-Tag. das wird zu lang!
 					} else {
 						$description = $tags;
+						$description = ""; // sonst steht der Titel 2-mal im Alt-Tag
 					}
 					$datetaken = strtok((string) $datetaken[2], ' ') . '.' . (string) $datetaken[1] . '.' . (string) $datetaken[0];
 					$data2[] = array(
