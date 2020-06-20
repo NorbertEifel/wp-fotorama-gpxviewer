@@ -83,16 +83,16 @@ function show_gpxview($attr, $content = null)
 			elseif ($thumbunder) {$thumbs = '_thumb.jpg';}
 		}
 		//$thumbinsubdir = is_file($path . '/' . $thumbsdir . '/' . $jpgdatei . '_thumb.jpg'); //gibt es zur Bilddatei ein Thumbnail im Sub-Directory?
-
-		$isthumb = stripos($jpgdatei, 'thumb') || stripos($jpgdatei, 'x'); // Schleife überspringen, wenn jpg eine thumbnail-Datei ist
+		$isthumb = preg_match('.\dx{1}\d.', $jpgdatei);
+		$isthumb = stripos($jpgdatei, 'thumb') || preg_match('.\dx{1}\d.', $jpgdatei); // Schleife überspringen, wenn jpg eine thumbnail-Datei ist
 		if (!$isthumb) {
 			getimagesize($path . "/" . basename($file), $info);
 			if (isset($info['APP13'])) {
 				$iptc = iptcparse($info['APP13']);
 				if (array_key_exists('2#005', $iptc)) {
-					$title =  $iptc["2#005"][0];
+					$title =  htmlspecialchars($iptc["2#005"][0]);
 				} else {
-					$title = 'Galeriebild' . strval($id);
+					$title = 'Galeriebild ' . strval($id+1);
 				}
 			}
 
@@ -315,6 +315,6 @@ function wp_setpostgps($pid, $lat, $lon)
 		delete_post_meta($pid,'lon');
 		update_post_meta($pid,'lat',$lat,''); 
 		update_post_meta($pid,'lon',$lon,'');
-		echo ('Update Post-Meta lat und lon');
+		//echo ('Update Post-Meta lat und lon');
 	}
 }
