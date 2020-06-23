@@ -202,17 +202,18 @@ function show_gpxview($attr, $content = null)
 		$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="contain" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
 		
 		foreach ($data2 as $data) {
-			$alttext = 'Galerie-Bild ' . $imgnr . ' von ' .$id . ': ' . $data["title"] . '. ' . $data["descr"]; //Bildinfo ausgeben für SEO!
+			//$alttext = 'Galerie-Bild ' . $imgnr . ' von ' .$id . ': ' . $data["title"] . '. ' . $data["descr"]; //Bildinfo ausgeben für SEO!
+			$alttext = $data["title"]; //Bildinfo ausgeben für SEO!
 			if ($data['thumbinsubdir']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img alt = "' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>';
+				$string .= '<img alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>';
 			} elseif ($data['thumbavail']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img alt = "' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>';
+				$string .= '<img alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>';
 			} else {
-				$string .= '<img alt = "' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
+				$string .= '<img alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
 			}
 			$imgnr++;
 		}
@@ -225,6 +226,11 @@ function show_gpxview($attr, $content = null)
 		$string  .= '<div id=map0 class="map gpxview:' . $gpxfile . ':OPENTOPO" style="width:100%;height:' . $mapheight . 'px"></div>';
 		$string  .= '<div id="map0_profiles" style="width:100%;height:' . $chartheight . 'px"><div id="map0_hp" class="map" style="width:100%;height:' . $chartheight . 'px"></div></div>';
 		$string  .= '<div id="map0_img">';
+	} elseif ($id > 0){
+		$string  .= '<div id=boxmap>';
+		$string  .= '<div id=map0 class="gpxview::OSM" style="width:100%;height:' . $mapheight . 'px"></div>';
+		$string  .= '<div id="map0_img">';
+		$gpx_path = "";
 	}
 	// Markerbilder anlegen 
 	if ($id > 0) {
@@ -242,6 +248,10 @@ function show_gpxview($attr, $content = null)
 	if (strlen($gpxfile) > 3 && ($i > 0)) {
 		$string  .= '</div></div>';
 	}
+	elseif ($id > 0){
+		$string  .= '</div></div>';
+	}
+
 	$string  .= '</div>';
 	if (($dload == 'yes') && ($i == 1)) {
 		$string .= '<p><strong>GPX-Datei: <a download="' . $gpxfile . '" href="' . $gpx_path . $gpxfile . '">Download GPX-Datei</a></strong></p>';

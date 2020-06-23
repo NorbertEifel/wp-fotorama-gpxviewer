@@ -68,7 +68,7 @@
         function (e, fotorama, extra) {
             var nr = fotorama.activeIndex;
             if(marker) JB.RemoveElement(marker);
-            if (g_numb_gpxfiles>0) {
+            if (g_numb_gpxfiles>=0) {
                 marker = map.Marker({lat:images[nr].coord.lat,lon:images[nr].coord.lon},JB.icons.Kreis)[0];
                 makemap.Rescale(images[nr].coord.lat,images[nr].coord.lon,g_maprescale); // <-------------------------------------
             }

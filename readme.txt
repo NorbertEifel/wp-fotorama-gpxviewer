@@ -138,6 +138,9 @@ There are no FAQ just yet.
 = 0.4.0 =
 *   First release: 18.03.2020
 
+= 0.5.0 =
+*   Second release: 1.04.2020
+
 = 0.6.0 =
 *   3rd release: 22.04.2020
  - SEO Opimierung für Fotorama (alt-tags mit title-Inhalt aus dem Bild in den img-Tags)
@@ -146,6 +149,10 @@ There are no FAQ just yet.
  - scale-Faktor ergänzt: Dieser setzt den Faktor die Umskalierung bei Focus und Zentrierung auf das aktive Bild
  - fotorama.js aus der Development-Version ergänzt und minified
  - JB.Infofenster jetzt rechts unten. Änderung in osmutils.js
+
+= 0.7.0 =
+*   4th release: 20.06.2020
+- Anzeige von Karte mit Foto-Icons auch OHNE GPX-Datei, Dabei wird OSM als Karte eingestellt
 
 == Upgrade Notice ==
 
