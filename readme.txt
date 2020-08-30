@@ -154,6 +154,10 @@ There are no FAQ just yet.
 *   4th release: 20.06.2020
 - Anzeige von Karte mit Foto-Icons auch OHNE GPX-Datei, Dabei wird OSM als Karte eingestellt
 
+= 0.7.1 =
+*   5th release: 30.08.2020
+- lazy loading für <img> ergänzt
+
 == Upgrade Notice ==
 
 There is no need to upgrade just yet.
