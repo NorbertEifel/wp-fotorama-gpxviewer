@@ -198,7 +198,7 @@ function show_gpxview($attr, $content = null)
 	$imgnr = 1;
 	//Fotorama ab hier
 	if ($id > 0) {
-		$string  .= '<div id="Bilder" style="display : none"><figure><img alt="' . $alttext . '"><figcaption></figcaption></figure></div>'; // sieht unnötig aus, aber es geht nur so
+		$string  .= '<div id="Bilder" style="display : none"><figure><img loading="lazy" alt="' . $alttext . '"><figcaption></figcaption></figure></div>'; // sieht unnötig aus, aber es geht nur so
 		$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="contain" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
 		
 		foreach ($data2 as $data) {
@@ -207,13 +207,13 @@ function show_gpxview($attr, $content = null)
 			if ($data['thumbinsubdir']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>';
+				$string .= '<img loading="lazy" alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>';
 			} elseif ($data['thumbavail']) {
 				$string .= '<a href="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$string .= '<img alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>';
+				$string .= '<img loading="lazy" alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>';
 			} else {
-				$string .= '<img alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
+				$string .= '<img loading="lazy" alt="' . $alttext .'" src="' . $up_path . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$id .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
 			}
 			$imgnr++;
 		}
