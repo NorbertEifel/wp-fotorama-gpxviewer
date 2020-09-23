@@ -83,7 +83,6 @@ function show_gpxview($attr, $content = null)
 	$gpx_path = $up_path . '/' . $gpxpath . '/';
 	$path = $up_dir . '/' . $imgpath; // Pfad zu den Bildern
 	$postid = get_the_ID();
-	$status = get_post_status($postid);
 
 	$id = 0;
 	// Bilddateien auslesen
