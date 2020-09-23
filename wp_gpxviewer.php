@@ -13,8 +13,37 @@ defined('ABSPATH') || die('Are you ok?');
 
 add_shortcode('gpxview', 'show_gpxview');
 
+global $post_state_pub_2_draft; 
+global $post_state_draft_2_pub;
+$post_state_pub_2_draft = false;
+$post_state_draft_2_pub = false;
+
+function on_all_status_transitions( $new_status, $old_status, $postid ) {
+	global $post_state_pub_2_draft;
+	global $post_state_draft_2_pub;
+
+	if ( $new_status != $old_status ) {
+		if ( $old_status == "draft" ) {
+			$post_state_draft_2_pub = true;	
+		}
+		elseif ($old_status == "publish") {
+			$post_state_pub_2_draft = true;
+		}
+		// A function to perform actions any time any post changes status.
+				
+	}
+}
+add_action(  'transition_post_status',  'on_all_status_transitions', 10, 3 );
+
 function show_gpxview($attr, $content = null)
 {
+	global $post_state_pub_2_draft;
+	global $post_state_draft_2_pub;
+	$pub_2_draft = $post_state_pub_2_draft;
+	$draft_2_pub = $post_state_draft_2_pub;
+	$postid = get_the_ID();
+	$status = get_post_status($postid);
+
 	// Variablen vordefinieren:
 	$string = '';
 	$files = [];
@@ -29,8 +58,7 @@ function show_gpxview($attr, $content = null)
 		'imgpath' => 'Bilder',
 		'dload' => 'yes',
 		'alttext' => 'Fotorama Bildergalerie als Javascript-Slider',
-		'scale' => 1.0,
-		'setpostgps' => 'no' // Nur für neue Posts einmalig auf "yes" setzen!
+		'scale' => 1.0
 	), $attr));
 
 	// Spracheinstellungen
@@ -55,6 +83,7 @@ function show_gpxview($attr, $content = null)
 	$gpx_path = $up_path . '/' . $gpxpath . '/';
 	$path = $up_dir . '/' . $imgpath; // Pfad zu den Bildern
 	$postid = get_the_ID();
+	$status = get_post_status($postid);
 
 	$id = 0;
 	// Bilddateien auslesen
@@ -155,7 +184,7 @@ function show_gpxview($attr, $content = null)
 						'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
 					);
 					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
-					if (($setpostgps == 'yes') && (0 == $id)) {
+					if (($draft_2_pub) && (0 == $id)) {
 						wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
 					}
 					$id++;
@@ -177,8 +206,8 @@ function show_gpxview($attr, $content = null)
 			$files[$i] = $f;
 			if ($i == 0) {
 				$gpxfile .= $f;
-				// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
-				if ($setpostgps == 'yes') {
+				// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos, wenn publish
+				if ($draft_2_pub) { 
 					$gpxdata = simplexml_load_file($gpx_path . $f);
 					$lat = (string) $gpxdata->trk->trkseg->trkpt[0]['lat'];
 					if (strlen($lat)<1) {$lat = (string) $gpxdata->trk->trkpt[0]['lat'];}
@@ -191,6 +220,11 @@ function show_gpxview($attr, $content = null)
 			}
 			$i++;
 		}
+	}
+	// Custom-Field lat lon im Post löschen , wenn status draft
+	if ($pub_2_draft) {
+		delete_post_meta($postid,'lat');
+		delete_post_meta($postid,'lon');
 	}
 
 	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist 
@@ -328,3 +362,5 @@ function wp_setpostgps($pid, $lat, $lon)
 		//echo ('Update Post-Meta lat und lon');
 	}
 }
+
+

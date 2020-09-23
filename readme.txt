@@ -158,9 +158,14 @@ There are no FAQ just yet.
 *   5th release: 30.08.2020
 - lazy loading für <img> ergänzt
 
+= 0.8.0 =
+*   6th release: 30.08.2020
+- automatisches Setzen von custom fields 'lat' und 'lon' bei Statuswechsel von draft -> publish und löschen 
+    bei Statuswechsel von publish -> draft ergänzt 
+
 == Upgrade Notice ==
 
-There is no need to upgrade just yet.
+There is no need to upgrade just yet. I recommend tu upgrade.
 
 == Screenshots ==
 
