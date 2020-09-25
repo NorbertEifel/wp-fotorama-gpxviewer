@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name: Fotorama mit GPXviewer Kombination (30.08.2020)
+ * Plugin Name: Fotorama mit GPXviewer Kombination (23.09.2020)
  * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
- * Version: 0.7.1
+ * Version: 0.8.0
  * Author: Martin von Berg
  * Author URI: http://www.mvb1.de/
  * License: GPL2
