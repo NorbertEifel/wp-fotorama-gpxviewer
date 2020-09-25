@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Fotorama mit GPXviewer Kombination (23.09.2020)
  * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
- * Version: 0.8.0
+ * Version: 0.9.0
  * Author: Martin von Berg
  * Author URI: http://www.mvb1.de/
  * License: GPL2
@@ -11,13 +11,18 @@
 // Sicherheitsabfrage
 defined('ABSPATH') || die('Are you ok?');
 
+// shortcode für den html-code im Post
 add_shortcode('gpxview', 'show_gpxview');
 
+// Datenfelder bei Satuswechsel draft < -- > pub setzen bzw. löschen
+	// globale Variablen ! Geht nur so, daher muss die Funktion hier stehen!
+	// Beim Statuswechsel wird das Skript durchlaufen
 global $post_state_pub_2_draft; 
 global $post_state_draft_2_pub;
 $post_state_pub_2_draft = false;
 $post_state_draft_2_pub = false;
 
+	// Funktion für Statuswechsel
 function on_all_status_transitions( $new_status, $old_status, $postid ) {
 	global $post_state_pub_2_draft;
 	global $post_state_draft_2_pub;
@@ -28,13 +33,36 @@ function on_all_status_transitions( $new_status, $old_status, $postid ) {
 		}
 		elseif ($old_status == "publish") {
 			$post_state_pub_2_draft = true;
-		}
-		// A function to perform actions any time any post changes status.
-				
+		}		
 	}
 }
+	// funkktion für Stauswecsel an action-hook binden
 add_action(  'transition_post_status',  'on_all_status_transitions', 10, 3 );
 
+// define the wpseo_sitemap_urlimages callback to add images of post to the sitemap
+// the function is called on the fly! would be better to save it in the functions.php!
+function filter_wpseo_sitemap_urlimages( $images, $post_id ) { 
+	// make filter magic happen here... 
+	//$postimages  = array('src' => 'https://127.0.0.1/wordpress/wp-content/uploads/Alben_Website/Rettenstein/Kitzb_Alpen_2018-5.jpg', 
+	//				'title' => 'Test-Bild', 
+	//				'alt' => 'bild mit nix drin', ); 
+	//$isyoastseo = is_plugin_active('wordpress-seo\index.php');
+	$myimgfrompost = get_post_meta($post_id,'postimg');
+	if ( ! empty($myimgfrompost)) {
+		$test = $myimgfrompost[0];
+		$postimages = maybe_unserialize($test);	
+		foreach ($postimages as $singleimg) {
+			$images[] = $singleimg;
+		}			
+	
+	}
+	return $images; 
+}; 
+         
+// add the filter for wpseo_sitemap_urlimages callback
+add_filter( 'wpseo_sitemap_urlimages', 'filter_wpseo_sitemap_urlimages', 10, 2 );
+
+// Funktion für den shortcode
 function show_gpxview($attr, $content = null)
 {
 	global $post_state_pub_2_draft;
@@ -42,11 +70,11 @@ function show_gpxview($attr, $content = null)
 	$pub_2_draft = $post_state_pub_2_draft;
 	$draft_2_pub = $post_state_draft_2_pub;
 	$postid = get_the_ID();
-	$status = get_post_status($postid);
 
 	// Variablen vordefinieren:
 	$string = '';
 	$files = [];
+	$postimages = [];
 	$thumbsdir = 'thumbs'; // des is jetzt mal fix
 
 	// Parameter extrahieren und vordefinieren
@@ -182,6 +210,8 @@ function show_gpxview($attr, $content = null)
 						'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags,
 						'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
 					);
+					$img2add = $up_path . '/' . $imgpath . '/' . $jpgdatei . '.jpg';
+					$postimages[] = array('src' => $img2add, 'title' => $title , 'alt' => $description, );
 					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
 					if (($draft_2_pub) && (0 == $id)) {
 						wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
@@ -195,7 +225,7 @@ function show_gpxview($attr, $content = null)
 		$csort = array_column($data2, 'sort');
 		array_multisort($csort, SORT_ASC, $data2);
 	}
-	
+			
 	// GPX-Track-Dateien parsen und prüfen
 	$files = explode(",", $gpxfile);
 	$i = 0;
@@ -212,7 +242,7 @@ function show_gpxview($attr, $content = null)
 					if (strlen($lat)<1) {$lat = (string) $gpxdata->trk->trkpt[0]['lat'];}
 					$lon = (string) $gpxdata->trk->trkseg->trkpt[0]['lon']; 
 					if (strlen($lon)<1) {$lon = (string) $gpxdata->trk->trkpt[0]['lon'];}
-					wp_setpostgps($postid, $lat, $lon);
+					wp_setpostgps($postid, $lat, $lon);			
 				}	
 			} else {
 				$gpxfile .= ',' . $f;
@@ -220,11 +250,19 @@ function show_gpxview($attr, $content = null)
 			$i++;
 		}
 	}
+	// Funktion für Statusübergange
 	// Custom-Field lat lon im Post löschen , wenn status draft
 	if ($pub_2_draft) {
 		delete_post_meta($postid,'lat');
 		delete_post_meta($postid,'lon');
+		delete_post_meta($postid,'postimg');
 	}
+
+	//if ($draft_2_pub) { // nach dem Durchklicken durch alle Posts wieder ändern!
+		$postimages = maybe_serialize($postimages);
+		delete_post_meta($postid,'postimg');
+		update_post_meta($postid,'postimg',$postimages,'');
+	//}
 
 	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist 
 	$string .= '<div id=box1>';

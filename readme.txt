@@ -105,6 +105,8 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
     1.5. TODO & Bugs
         - Mean: BUG: wenn die Wegpunkte einmal de- / re-aktiviert werden, folgt der Kreis nicht mehr dem Bild! Die Seite muss dann neu geladen werden! 
         - Minor: Minfiy der Dateien aus GMUTILS funktioniert nicht.
+        - Minor: sitemap nur bearbeiten, wenn yoast SEO als plugin vorhanden ist. Ist nicht nötig, da es denn Filter "wpseo_sitemap_urlimages" dann auch nicht gibt.
+                Dann wird die Funktion auch nie ausgeführt.
 
     3. Kombination Fotorama + GPXViewer:
         3.1. Bedienung wie oben mit gemeinsamer Verwendung der Optionen 
@@ -159,9 +161,13 @@ There are no FAQ just yet.
 - lazy loading für <img> ergänzt
 
 = 0.8.0 =
-*   6th release: 30.08.2020
+*   6th release: 20.09.2020
 - automatisches Setzen von custom fields 'lat' und 'lon' bei Statuswechsel von draft -> publish und löschen 
     bei Statuswechsel von publish -> draft ergänzt 
+
+= 0.9.0 =
+*   7th release: 25.09.2020
+- ergänzen der Bilder aus dem fotorama-gpx-plugin in die yoast sitemap  
 
 == Upgrade Notice ==
 
