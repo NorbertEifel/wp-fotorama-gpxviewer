@@ -211,7 +211,7 @@ function show_gpxview($attr, $content = null)
 						'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
 					);
 					$img2add = $up_path . '/' . $imgpath . '/' . $jpgdatei . '.jpg';
-					$postimages[] = array('src' => $img2add, 'title' => $title , 'alt' => $description, );
+					$postimages[] = array('src' => $img2add , 'alt' => $title, );
 					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
 					if (($draft_2_pub) && (0 == $id)) {
 						wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
@@ -258,11 +258,11 @@ function show_gpxview($attr, $content = null)
 		delete_post_meta($postid,'postimg');
 	}
 
-	//if ($draft_2_pub) { // nach dem Durchklicken durch alle Posts wieder ändern!
+	if ($draft_2_pub) { // Setzt das Custom-Field beim Veröffentlihchen, nach dem Durchklicken durch alle Posts wieder ändern!
 		$postimages = maybe_serialize($postimages);
 		delete_post_meta($postid,'postimg');
 		update_post_meta($postid,'postimg',$postimages,'');
-	//}
+	}
 
 	// Div für gpxviewer erzeigen, wenn mind. eine GPX-Datei vorhanden ist 
 	$string .= '<div id=box1>';
