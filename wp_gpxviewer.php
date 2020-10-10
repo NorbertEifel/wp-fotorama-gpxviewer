@@ -47,12 +47,12 @@ function filter_wpseo_sitemap_urlimages( $images, $post_id ) {
 	//				'title' => 'Test-Bild', 
 	//				'alt' => 'bild mit nix drin', ); 
 	//$isyoastseo = is_plugin_active('wordpress-seo\index.php');
-	$myimgfrompost = get_post_meta($post_id,'postimg');
+	$myimgfrompost = get_post_meta($post_id,'postimg'); // lese das array aus dem custom-field aus
 	if ( ! empty($myimgfrompost)) {
-		$test = $myimgfrompost[0];
-		$postimages = maybe_unserialize($test);	
+		$test = $myimgfrompost[0]; // nur der erste index wird benötig
+		$postimages = maybe_unserialize($test);	// string-array in echtes php-array umwandeln
 		foreach ($postimages as $singleimg) {
-			$images[] = $singleimg;
+			$images[] = $singleimg; // bilder an die sitemap ausgeben
 		}			
 	
 	}
@@ -210,9 +210,12 @@ function show_gpxview($attr, $content = null)
 						'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags,
 						'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
 					);
+					// array für yoast xml sitemap erzeugen
 					$img2add = $up_path . '/' . $imgpath . '/' . $jpgdatei . '.jpg';
-					$postimages[] = array('src' => $img2add , 'alt' => $title, );
-					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos
+					$src2 = str_replace('smrtzl','smrtzl/webp-express/webp-images/doc-root/smrtzl',$img2add);
+					$src2 = $src2 . '.webp';
+					$postimages[] = array('src' => $src2 , 'alt' => $title, );
+					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos, vorbelegen, wenn keine gpx-Datei
 					if (($draft_2_pub) && (0 == $id)) {
 						wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
 					}
@@ -258,7 +261,9 @@ function show_gpxview($attr, $content = null)
 		delete_post_meta($postid,'postimg');
 	}
 
-	if ($draft_2_pub) { // Setzt das Custom-Field beim Veröffentlihchen, nach dem Durchklicken durch alle Posts wieder ändern!
+	//if ($draft_2_pub) { // Setzt das Custom-Field beim Veröffentlihchen, nach dem Durchklicken durch alle Posts wieder ändern!
+	if ( is_singular() && in_the_loop() && is_main_query() && current_user_can( 'administrator' ) ) {
+		// TOTO: besser wenn admin logged-in wie in functions php
 		$postimages = maybe_serialize($postimages);
 		delete_post_meta($postid,'postimg');
 		update_post_meta($postid,'postimg',$postimages,'');
