@@ -212,9 +212,9 @@ function show_gpxview($attr, $content = null)
 					);
 					// array für yoast xml sitemap erzeugen
 					$img2add = $up_path . '/' . $imgpath . '/' . $jpgdatei . '.jpg';
-					$src2 = str_replace('smrtzl','smrtzl/webp-express/webp-images/doc-root/smrtzl',$img2add);
-					$src2 = $src2 . '.webp';
-					$postimages[] = array('src' => $src2 , 'alt' => $title, );
+					//$src2 = str_replace('smrtzl','smrtzl/webp-express/webp-images/doc-root/smrtzl',$img2add);
+					//$src2 = $src2 . '.webp';
+					$postimages[] = array('src' => $img2add , 'alt' => $title, );
 					// Custom-Field lat lon im Post setzen mit Daten des ersten Fotos, vorbelegen, wenn keine gpx-Datei
 					if (($draft_2_pub) && (0 == $id)) {
 						wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
