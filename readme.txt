@@ -186,3 +186,10 @@ There is no need to upgrade just yet. I recommend tu upgrade. See at Update-Sect
 == Screenshots ==
 
 There are no screenshots yet, or see : www.mvb1.de
+
+== Credits ==
+This plugin uses the great work from:
+
+- fotorama, see: https://fotorama.io/ Thank you for that!
+- GPXViewer, see: https://www.j-berkemeier.de/GPXViewer/ Vielen Dank für den Support!
+- wordpress for coding hints: https://de.wordpress.org/
