@@ -1,20 +1,20 @@
 === wp-fotorama-gpxviewer ===
 Contributors: Martin von Berg
-Donate link: http://www.mvb1.de
+Donate link: http://www.mvb1.de/wordpress-plugins/
 Tags: Slider, Gallery, GPX, leaflet, Track, chart, map, thumbnail, image, fullscreen, responsive
 Requires at least: 5.0
 Tested up to: 5.2.3
 Requires PHP: 7.0
-License: GPLv2 or later
+License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin. This should be no more
 
 == Description ==
 
-Anzeige Bildergallerie als Fotorama-Image-Slider kombiniert mit
-Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
-Übersicht der Shortcodes:
+Anzeige Bildergallerie als Fotorama-Image-Slider kombiniert mit Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider. 
+Es kann sowohl NUR der Bilder-Slider als auch NUR die Karte genutzt werden. Und die Kombination aus beiden.
+
+Übersicht der Shortcodes: (Nach dem '=>' steht der Vorgabe-Wert, der verwenet wird, wenn der Wert im Shortcode nicht gesetzt wird!)
         'gpxpath' => 'gpx',
 		'gpxfile' => 'test.gpx',
 		'mapheight' => '450',
@@ -23,27 +23,27 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
 		'dload' => 'yes',
 		'alttext' => 'Fotorama Bildergallerie als Javascript-Slider',
 		'scale' => 1.0,
-		'setpostgps' => 'no' // Nur für neue Posts einmalig auf "yes" setzen!
+		'setpostgps' => 'no' // Nur für neue Posts einmalig auf "yes" setzen! (29.11.2020: Stimmt das noch???. Bitte auf 'no' lassen!)
 
 1.Slider-Bedienung (Fotorama)
-    1.1. Vorbereitung
+    1.1. Vorbereitung der Bilder und der Gallerie
     - OPTIONAL: EXIF-Daten in den Bildern anpassen
         Mit dem Skript "copy_exif_data.ps1" die Objektiv-Informationen (EXIF: Lens ID) in die Make-Info (EXIF: Make) kopieren.
-        Wenn der Schritt nicht durchgeführt wird, wird nur das Kameramodell angegeben (EXIF: Model)
+        Wenn der Schritt nicht durchgeführt wird, wird nur das Kameramodell angegeben (EXIF: Model), daher optional.
     - OPTIONAL: Thubnails generieren und Bilder verkleinern
         Zu den Bildern mit dem Tool "ImageResizer für Windows" die Bilder verkleinern und thumbnails generieren. Thumbs sollten eine 
-        minimale Seitenlänge von 64 px haben.
-        Alternativ: Thumbs im Ordner ./thumbs ablegen oder im Stammordner der Bilder
-        Wenn keine Thumbs vorhanden, werden die großen Bilder genommen und skaliert, dann dauert das Laden aber länger.
+        minimale Seitenlänge von 64 px haben. Ideal ist 150px x 150px.
+        Alternativ: Thumbs im Unter-Ordner .../thumbs ablegen oder im Stammordner der Bilder. (siehe bei 1.2.)
+        Wenn keine Thumbs vorhanden, werden die großen Bilder verwendet und zu Thumbnails skaliert, dann dauert das Laden der Webseite aber länger.
 
     1.2. Bilder hochladen
-    - Bilder und Thubnails in einem beliebigen Ordner unter  ./wp-content/uploads/ hochladen   
+    - Bilder und Thubnails in einem beliebigen (unter-)Ordner unter  ..../wp-content/uploads/ mit ftp hochladen.   
         z.B. unter:  /wp-content/uploads/Alben_Website/Friaul-Cacciatore -> Fertig!
-    - Die Bilder werden in der WP-Medien-Anzeige nicht angezeigt.
+    - Die Bilder werden in der WP-Medien-Anzeige nicht angezeigt. Das Plugin arbeitet also am WP-Medienkatalog "vorbei".
 
     1.3. Slider bzw. Bildergallerie aktivieren
-    Im post den Shortcode [gpxview imgpath="Alben_Website/Friaul-Cacciatore"] angeben -> Fertig
-    Dabei keine (Back)-Slashes ('/' oder '\') am Anfang oder Ende angeben!
+    Im WP-post den Shortcode [gpxview imgpath="Alben_Website/Friaul-Cacciatore"] angeben -> Fertig
+    Dabei keine (Back)-Slashes ('/' oder '\') am Anfang oder Ende des imgpath angeben!
     Es wird nur die Bildergallerie angezeigt!   
     Achtung: Bilder OHNE GPS-Daten im EXIF werden NICHT angezeigt. Nicht gesetzte EXIF-Daten werden durch "--" ersetzt!  
 
@@ -52,30 +52,32 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
         Option: alttext="...." Default : 'Fotorama Bildergallerie als Javascript-Slider'    
     Die Fotorama Optionen sind fix eingestellt in dieser Zeile:
   		$string  .= '<div id="fotorama" class="fotorama" data-auto="false" data-width="100%" data-fit="contain" data-ratio="1.5" data-nav="thumbs" data-allowfullscreen="native" data-keyboard="true" data-hash="true">';
-    und teilweise auch in der Datei wp_gpxviewer_style.css für das Styling! Änderungen direkt im *.css vornehmen oder in der o.g. Codezeile
-    Weitere Optionen zu Fotorama finden sich unter: https://fotorama.io/docs/4/options/ (oder im abgelegten Fotorama....mthml) 
+    und teilweise auch in der Datei wp_gpxviewer_style.css für das Styling! Änderungen direkt im *.css vornehmen oder in der o.g. Codezeile.
+    Weitere Optionen zu Fotorama finden sich unter: https://fotorama.io/docs/4/options/ (oder im lokal abgelegten Fotorama....mthml) 
     oder in fotorama.dev.js ab Zeile 880 unter "OPTIONS = {..."
     
     1.5 TODO
-    Minor: Umschaltung "data-fit" zwischen Inline-Anzeige und fullscreen-Anzeige: Keine Kontaktdaten vom Entwickler verfügbar und Debugging mit Chrome geht nicht. 
+    - Mean: maximale Breite der Gallerie prüfen. Irgendwas stimmt da nicht.
+    - Major: Auf kleinen Bildschirmen ist in Fotorama die Caption zu groß. Texte in der Caption sind teilweise zu lang! Zu 100% responsive ist die Gallerie also nicht.
+    - Minor: Für die Bilder imgsrcset verwenden, um kleine Bildschirme besser zu unterstützen, sprich responsive zu werden.
+    - Minor: Umschaltung "data-fit" zwischen Inline-Anzeige und fullscreen-Anzeige: Keine Kontaktdaten vom Entwickler verfügbar und Debugging mit Chrome geht nicht. 
 
 2. GPXVIEWER-Bedienung:    
     1.1. Vorbereitung
     - OPTIONAL: GPX-Tracks verkleinern: mit Batch-Datei: FOR %%i In (*.gpx) do GPSBabel -i gpx -f %%~i -x simplify,count=100 -o GPX -F %%~ni.gpx (Datei: GPS_Babel_GPX_Reducet.bat)
-      Anzahl der Punkte unter count
-      Minor: TODO: Alle Daten, außer lat, long, ele aus dem GPX entfernen
+      Anzahl der Punkte wird unter "count" eingestellt. 
+      
 
     1.2. GPX-Tracks hochladen
-    - Tracks im Ordner  ./wp-content/uploads/gpx hochladen.
-        Der Ordner "gpx" kann relativ zu "./wp-content/uploads/" geändert werden mit [gpxview ...gpxpath="<Pfad>"]. 
-        Dabei keine (Back)-Slashes ('/' oder '\') am Anfang oder Ende angeben!
+    - Tracks im Ordner  ./wp-content/uploads/gpx mit ftp hochladen. 
+        Der Ordner "gpx" kann auch relativ zu "..../wp-content/uploads/" geändert werden mit [gpxview ...gpxpath="<Pfad>"]. 
+        Dabei keine (Back)-Slashes ('/' oder '\') am Anfang oder Ende von <Pfad> angeben!
 
     1.3. Karte mit Track aktivieren
     - Shortcode im Post einfügen: [gpxview gpxfile="<Trackname>.gpx"]   Default: "test.gpx" 
-        Ohne Angabe des Ordners wird der Standard-Ordner ./wp-content/uploads/gpx/ verwendet.
-        Angaben mehrer Dateien ist möglich. Verwendung einer Kommma-getrennten Liste z.B.: gpxfile="Malle.gpx, Malle2.gpx, Malle3.gpx"
+        Ohne Angabe des Ordners (siehe 1.2) wird der Standard-Ordner ./wp-content/uploads/gpx/ verwendet.
+        Angaben mehrerer Dateien ist möglich. Verwendung einer Kommma-getrennten Liste z.B.: gpxfile="Malle.gpx, Malle2.gpx, Malle3.gpx"
         Die Angabe der Erweiterung *.gpx ist immer nötig.
-    - Infofenster mit Trackdaten wird von Anfang an angezeigt. Es werden aber nur die Daten des 1. Tracks angezeigt!   
         
     1.4 GPX-Viewer-Optionen: Ohne Angabe werden die Default-Werte verwendet
         Höhe der Karte: mapheight=300. Default : 450. Keine Anführungszeichen!
@@ -97,23 +99,31 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
             Die Dateien unter GPX2GM dürfen nicht minimiert werden (minify)! Sonst geht das Tool nicht mehr. Daher kann in WP das Plugin 
             "Autoptimize" (https://wordpress.org/plugins/autoptimize/) NICHT benutzt werden.
             Im Plugin "Asset Clean up" (https://wordpress.org/plugins/wp-asset-clean-up/ ) muss das Plugin explizit ausgenommen werden.
-                /smrtzl/plugins/wp-fotorama-gpxviewer/(.*?).css
-                /smrtzl/plugins/wp-fotorama-gpxviewer/(.*?).js
-            eintragen in der Liste bei den Ausnahmen.
-            Andere Plugins wurden nicht getestet.   
+                /smrtzl/plugins/wp-fotorama-gpxviewer/(.*?).css (/smrtzl/ steht hier für /wp-content/)
+                /smrtzl/plugins/wp-fotorama-gpxviewer/(.*?).js  (/smrtzl/ steht hier für /wp-content/)
+            eintragen in der Liste bei den Ausnahmen. Andere Plugins wurden zur Code-Optimierung von WP wurden nicht getestet.   
+            Hinweis: Irgendein dämlicher Sicherheitshinweis hat empfohlen den .../wp-content - Ordner umzubenennen. (Hier in 'smrtzl'). Das ist Quatsch!
+            Mit der Anzeige des ersten Bildes kann jeder Hacker herauslesen, dass der Ordner umbenannt wurde. Das Umbenennen schafft nur Probleme. Besser also bleiben lassen!
 
     1.5. TODO & Bugs
+        - Mean: update GPXViewer auf aktuelle Version 6.11! Läuft aber auch mit der alten Version 6.7! 
+        - Minor: Infofenster mit Trackdaten wird von Anfang an angezeigt. Es werden aber nur die Daten des 1. Tracks angezeigt!   
+        - Minor: TODO: Alle Daten, außer lat, long, ele aus dem GPX entfernen
+        - Mean: GPX-Dateien OHNE Höhenangaben fürhen zu einem leeren Höhenprofil und einem Javascript-error im Browser, der aber nicht blockierend ist. Gallerie und Karte passen aber trotzdem
         - Mean: BUG: wenn die Wegpunkte einmal de- / re-aktiviert werden, folgt der Kreis nicht mehr dem Bild! Die Seite muss dann neu geladen werden! 
         - Minor: Minfiy der Dateien aus GMUTILS funktioniert nicht.
         - Minor: sitemap nur bearbeiten, wenn yoast SEO als plugin vorhanden ist. Ist nicht nötig, da es denn Filter "wpseo_sitemap_urlimages" dann auch nicht gibt.
                 Dann wird die Funktion auch nie ausgeführt.
 
-    3. Kombination Fotorama + GPXViewer:
-        3.1. Bedienung wie oben mit gemeinsamer Verwendung der Optionen 
-            Das erzeugt den Slider oben und die Karte unten. Der Marker auf der Karte folgt dem im Slider angezeigten Bild.
-            Achtung: Bilder OHNE GPS-Daten im EXIF werden NICHT angezeigt. 
-            Die Karte zentriert auf das jeweils in Fotorama anzeigte Bild. Die Skalierung auf 500m-Strich ist dabei fix. Eine vom User gewählte 
-            Skalierung wird bei Umschaltung des Bildes zurückgesetzt.      
+3. Kombination Fotorama + GPXViewer:
+    3.1. Bedienung wie oben mit gemeinsamer Verwendung der gelisteten Optionen.
+        Das erzeugt den Fotorama-Slider oben und die Karte unten. Der Marker auf der Karte folgt dem im Slider angezeigten Bild.
+        Achtung: Bilder OHNE GPS-Daten im EXIF werden NICHT angezeigt. 
+        Die Karte zentriert auf das jeweils in Fotorama anzeigte Bild. Die Skalierung auf 500m-Strich ist dabei fix. Eine vom User gewählte 
+        Skalierung wird bei Umschaltung des Bildes zurückgesetzt. 
+    3.2  Beim Veröffentlichen des Posts in WP werden -getriggert durch den Statuswechsel- automatisch die Custom-fields 'lat' und 'lon' mit den GPS-Daten
+        des ersten Bildes oder den ersten GPX-Daten im Track gesetzt. Die Felder 'lat' und 'lon' müssen gesetzt sein, damit der Post als Icon in der Übersichtskarte
+        angezeigt wird.
 		
 		
 		
@@ -125,15 +135,15 @@ Anzeige eines oder mehrerer GPX-Tracks auf einer Leaflet-Karte unter dem Slider.
 2. Activate the plugin through the 'Plugins' menu in WordPress
 4. Fertig. Keine weiteren Settings nötig
 
-== Update des Plugins ==
+== Update des Plugins De-Installation ==
 
 1. Deaktivieren
-2. löschen
+2. löschen. Wer hier aufhört deinsalliert das Plugin.
 3. Weiter mit Installation
 
 == Frequently Asked Questions ==
 
-There are no FAQ just yet.
+There are no FAQs just yet.
 
 == Changelog ==
 
@@ -163,7 +173,7 @@ There are no FAQ just yet.
 = 0.8.0 =
 *   6th release: 20.09.2020
 - automatisches Setzen von custom fields 'lat' und 'lon' bei Statuswechsel von draft -> publish und löschen 
-    bei Statuswechsel von publish -> draft ergänzt 
+    bei Statuswechsel von publish -> draft ergänzt. Daher sollte eigentlich 'setpostgps' => 'no' nicht mehr nötig sein.
 
 = 0.9.0 =
 *   7th release: 25.09.2020
@@ -171,7 +181,7 @@ There are no FAQ just yet.
 
 == Upgrade Notice ==
 
-There is no need to upgrade just yet. I recommend tu upgrade.
+There is no need to upgrade just yet. I recommend tu upgrade. See at Update-Section
 
 == Screenshots ==
 

@@ -5,7 +5,7 @@
  * Description: Plugin zur Einbindung von Karten mit Tracks mit GPXviewer. Shortcode: [gpxview imppath=" " gpxfile="..." alttext=""]. Nur einmal pro Seite Verwenden!
  * Version: 0.9.0
  * Author: Martin von Berg
- * Author URI: http://www.mvb1.de/
+ * Author URI: http://www.mvb1.de/wordpress-plugins/
  * License: GPL2
  */
 // Sicherheitsabfrage
