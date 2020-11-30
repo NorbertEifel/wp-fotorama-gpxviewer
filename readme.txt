@@ -1,3 +1,5 @@
+I know the code has to be improved and this file has to be translated! We wait for Christmas.
+
 === wp-fotorama-gpxviewer ===
 Contributors: Martin von Berg
 Donate link: http://www.mvb1.de/wordpress-plugins/
