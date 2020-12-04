@@ -26,7 +26,7 @@ if (setCustomFields) {
 	require_once __DIR__ . '/inc/stateTransitions.php';
 }
 
-// load the wpseo_sitemap_urlimages callback to add images of post to the sitemap only if needed or intended
+// load the wpseo_sitemap_url-images callback to add images of post to the sitemap only if needed or intended
 define('doYoastXmlSitemap' , true);
 if (doYoastXmlSitemap) {
 	require_once __DIR__ . '/inc/yoastXmlSitemap.php';
@@ -35,7 +35,7 @@ if (doYoastXmlSitemap) {
 // define the shortcode to generate the image-slider with map
 add_shortcode('gpxview', 'show_gpxview');
 
-// this is the function that runs if the post is rendered an the shorcode is found in the page. Somehow the main-funcition
+// this is the function that runs if the post is rendered an the shortcode is found in the page. Somehow the main-function
 function show_gpxview($attr, $content = null)
 {
 	// Define global Values and Variables. We need the globals for the state-transition of the post
@@ -136,26 +136,26 @@ function show_gpxview($attr, $content = null)
 
 			// get $Exif-Data from image and check wether image contains GPS-data, if not it will be skipped
 			$Exif = exif_read_data($file, 0, true);
-			list($lon,$lat) = getLonLat($Exif);	
+			list($lon,$lat) = gpxview_getLonLat($Exif);	
 			
 			if ((is_null($lon)) || (is_null($lat))) {
 				// do nothing, GPS-data invalid;
 			} 
 
 			else {
-				// Check if file with GPS-Coord is maybe in WP-Media-Catalog 
+				// Check if file with GPS-Coordinate is maybe in WP-Media-Catalog 
 				$wpimgurl = $imageurl . '/' . $jpgfile . '.jpg';
 				$wpid = attachment_url_to_postid($wpimgurl);
 	
 				// get Exif-Data-Values from $Exif and $iptc and store it to array data2
-				list($exptime, $apperture, $iso, $focal, $camera, $datetaken, $datesort, $tags, $description, $title, $alt, $caption, $sort) = getEXIFData($Exif, $imagepath . "/" . basename($file), $imageNumber, $wpid);
+				list($exptime, $apperture, $iso, $focal, $camera, $datetaken, $datesort, $tags, $description, $title, $alt, $caption, $sort) = gpxview_getEXIFData($Exif, $imagepath . "/" . basename($file), $imageNumber, $wpid);
 				$data2[] = array(
 					'id' => $imageNumber, 'lat' => $lat, 'lon' => $lon, 'title' => $title, 'file' => $jpgfile, 'exptime' => $exptime,
 					'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags, 'wpid' => $wpid,
 					'datesort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir, 'alt' => $alt, 'caption' => $caption, 'sort' => $sort,
 				);
 			
-				// create array to add the image-urls to yoast-seo xml-sitemap 
+				// create array to add the image-urls to Yoast-seo xml-sitemap 
 				if (doYoastXmlSitemap) {
 					$img2add = $up_url . '/' . $imgpath . '/' . $jpgfile . '.jpg';
 					$postimages[] = array('src' => $img2add , 'alt' => $title, );
@@ -194,7 +194,7 @@ function show_gpxview($attr, $content = null)
 	// Will be overwritten with the first trackpoint of the GPX-track, if there is one provided
 	if ($draft_2_pub)  {
 		if (setCustomFields) {
-			wp_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
+			gpxview_setpostgps($postid, $data2[0]['lat'], $data2[0]['lon']);
 		}
 		if (doYoastXmlSitemap) {
 			$postimages = maybe_serialize($postimages);
@@ -220,7 +220,7 @@ function show_gpxview($attr, $content = null)
 					if (strlen($lat)<1) {$lat = (string) $gpxdata->trk->trkpt[0]['lat'];}
 					$lon = (string) $gpxdata->trk->trkseg->trkpt[0]['lon']; 
 					if (strlen($lon)<1) {$lon = (string) $gpxdata->trk->trkpt[0]['lon'];}
-					wp_setpostgps($postid, $lat, $lon);			
+					gpxview_setpostgps($postid, $lat, $lon);			
 				}
 
 			} else {
@@ -322,5 +322,5 @@ function show_gpxview($attr, $content = null)
 require_once __DIR__ . '/wp_gpxviewer_enque.php';
 
 // --------------- load additonal functions ------------------------------
-require_once __DIR__ . '/inc/allfunctions.php';
+require_once __DIR__ . '/inc/gpxview_functions.php';
 

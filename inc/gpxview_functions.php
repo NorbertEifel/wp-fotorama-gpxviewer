@@ -1,7 +1,14 @@
 <?php
 
-/* Get the upload URL/path in right way (works with SSL).
-    *         @param $param string "basedir" or "baseurl" and @return string */
+/**
+ * Get the upload URL/path in right way (works with SSL).
+ *
+ * @param string $param  "basedir" or "baseurl"
+ *
+ * @param string $subfolder  subfolder to append to basedir or baseurl
+ * 
+ * @return string the base appended with subfolder
+ */
 function gpxview_get_upload_dir($param, $subfolder = '')
 {
 	
@@ -15,15 +22,39 @@ function gpxview_get_upload_dir($param, $subfolder = '')
 	return $url . $subfolder;
 }
 
-function getGps($exifCoord, $hemi)
+function gpxview_GPS2Num($coordPart)
+	{
+		$parts = explode('/', $coordPart);
+
+		if (count($parts) <= 0)
+			return 0;
+
+		if (count($parts) == 1)
+			return $parts[0];
+
+		return floatval($parts[0]) / floatval($parts[1]);
+	}
+
+
+/**
+ * calculate GPS-coordinates to float together with earth hemisphere
+ *
+ * @param array $exif-Coord One GPS-Coordinate taken from Exif in jpg-image in [degrees, minutes, seconds]
+ *
+ * @param string $hemi earth hemisphere. If "W" or "S" it is the west or south half of earth
+ * 
+ * @return float|null gps-coordinate as number or null if $exif-Coord is not an array
+ */
+function gpxview_getGPS($exifCoord, $hemi)
 {
+
 	if ( ! is_array($exifCoord)) {
 		return null;
 	}
 
-	$degrees = count($exifCoord) > 0 ? gps2Num($exifCoord[0]) : 0;
-	$minutes = count($exifCoord) > 1 ? gps2Num($exifCoord[1]) : 0;
-	$seconds = count($exifCoord) > 2 ? gps2Num($exifCoord[2]) : 0;
+	$degrees = count($exifCoord) > 0 ? gpxview_GPS2Num($exifCoord[0]) : 0;
+	$minutes = count($exifCoord) > 1 ? gpxview_GPS2Num($exifCoord[1]) : 0;
+	$seconds = count($exifCoord) > 2 ? gpxview_GPS2Num($exifCoord[2]) : 0;
 
 	$flip = ($hemi == 'W' or $hemi == 'S') ? -1 : 1;
 
@@ -35,24 +66,22 @@ function getGps($exifCoord, $hemi)
 	}
 }
 
-function gps2Num($coordPart)
-{
 
-	$parts = explode('/', $coordPart);
-
-	if (count($parts) <= 0)
-		return 0;
-
-	if (count($parts) == 1)
-		return $parts[0];
-
-	return floatval($parts[0]) / floatval($parts[1]);
-}
-
-function wp_setpostgps($pid, $lat, $lon)
+/**
+ * set custom fields 'lat' and 'lon' of the post
+ *
+ * @param int $pid the post-id
+ *
+ * @param float $lat the GPS-coordinates lat as number
+ * 
+ * @param float $lon the GPS-coordinates lon as number
+ * 
+ * @return nothing
+ */
+function gpxview_setpostgps($pid, $lat, $lon)
 {
 	// es wurde vorab schon geprüft, dass die Werte $lat und $lon existieren. Stimmt nur für setzen aus Foto
-	// Wenn Struktur GPX-XML abweicht, dann liefert simplexml leere Strings
+	// Wenn Struktur GPS-XML abweicht, dann liefert simplexml leere Strings
 	$oldlat = get_post_meta($pid,'lat');
 	$oldlon = get_post_meta($pid,'lon');
 	if ((count($oldlon)==0) && (count($oldlat)==0)) {
@@ -68,11 +97,18 @@ function wp_setpostgps($pid, $lat, $lon)
 	}
 }
 
-function getLonLat($Exif)
+/**
+ * get GPS-Longitude 'lon' and Latitude 'lat' from the Exif-Data in the image
+ *
+ * @param array $Exif the Exif-data read out from the image
+ *
+ * @return array ($lon, $lat) the GPS-coordinates
+ */
+function gpxview_getLonLat($Exif)
 {
 	if (array_key_exists('GPS',$Exif)) {
-		$lon = getGps($Exif["GPS"]["GPSLongitude"], $Exif["GPS"]['GPSLongitudeRef']);
-		$lat = getGps($Exif["GPS"]["GPSLatitude"], $Exif["GPS"]['GPSLatitudeRef']);
+		$lon = gpxview_getGPS($Exif["GPS"]["GPSLongitude"], $Exif["GPS"]['GPSLongitudeRef']);
+		$lat = gpxview_getGPS($Exif["GPS"]["GPSLatitude"], $Exif["GPS"]['GPSLatitudeRef']);
 	} else {
 		// "No GPS-Data available.."
 		$lon = null;
@@ -82,7 +118,21 @@ function getLonLat($Exif)
 	return array($lon, $lat);
 }
 
-function getEXIFData($Exif, $file, $imageNumber, $wpid)
+/**
+ * read-out single values from the Exif-Data, IPTC-Data and the WP-Media-Catalog-Database
+ * . If found in the Catalog this information will be preferred.
+ *
+ * @param array $Exif the Exif-data read out from the image
+ *
+ * @param string $file the directory-path to the image file 
+ * 
+ * @param int $imageNumber the local loop-counter for the image 
+ * 
+ * @param int $wpid the wordpress-id of the image 
+ * 
+ * @return array array with dedicated information for the image
+ */
+function gpxview_getEXIFData($Exif, $file, $imageNumber, $wpid)
 {
 	
 	// get title from IPTC-data
