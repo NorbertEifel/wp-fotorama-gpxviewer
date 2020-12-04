@@ -34,7 +34,7 @@ See under https://www.mvb1.de/info/wordpress-plugins/
 
 ## Screenshot
 
-![screenshot_live_site](./wp_fotorama_gpx.png)
+![screenshot_live_site](./wp_fotorama_gpx.PNG)
 
 # Note prior to installation
 1. Do a Backup!
