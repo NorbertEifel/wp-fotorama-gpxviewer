@@ -59,8 +59,9 @@ function show_gpxview($attr, $content = null)
 		'chartheight' => '150',
 		'imgpath' => 'Bilder',
 		'dload' => 'yes',
-		'alttext' => 'Fotorama Bildergalerie als Javascript-Slider',
-		'scale' => 1.0 // map-scale factor
+		'alttext' => '',
+		'scale' => 1.0, // map-scale factor for GPXViewer
+		'ignoresort' => false, // ignore custom sort even if provided by Wordpress, then sort by date ascending
 	), $attr));
 
 	// Detect Language of Website and set the Javascript-Variable for the Language used in GPXViewer
@@ -84,6 +85,7 @@ function show_gpxview($attr, $content = null)
 	$gpx_dir = $up_dir . '/' . $gpxpath . '/';    // gpx_dir
 	$gpx_url = $up_url . '/' . $gpxpath . '/';    // gpx_url
 	$imagepath = $up_dir . '/' . $imgpath;        // path to the images
+	$imageurl = $up_url . '/' . $imgpath;         // url to the images-url in uploads directory
 	
 	// Loop through all jpg-files in the given folder, and get the required data
 	$imageNumber = 0;
@@ -141,13 +143,16 @@ function show_gpxview($attr, $content = null)
 			} 
 
 			else {
+				// Check if file with GPS-Coord is maybe in WP-Media-Catalog 
+				$wpimgurl = $imageurl . '/' . $jpgfile . '.jpg';
+				$wpid = attachment_url_to_postid($wpimgurl);
 	
 				// get Exif-Data-Values from $Exif and $iptc and store it to array data2
-				list($exptime, $apperture, $iso, $focal, $camera, $datetaken, $datesort, $tags, $description, $title) = getEXIFData($Exif, $imagepath . "/" . basename($file), $imageNumber);
+				list($exptime, $apperture, $iso, $focal, $camera, $datetaken, $datesort, $tags, $description, $title, $alt, $caption, $sort) = getEXIFData($Exif, $imagepath . "/" . basename($file), $imageNumber, $wpid);
 				$data2[] = array(
 					'id' => $imageNumber, 'lat' => $lat, 'lon' => $lon, 'title' => $title, 'file' => $jpgfile, 'exptime' => $exptime,
-					'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags,
-					'sort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir
+					'apperture' => $apperture, 'iso' => $iso, 'focal' => $focal, 'camera' => $camera, 'date' => $datetaken, 'tags' => $tags, 'wpid' => $wpid,
+					'datesort' => $datesort, 'descr' => $description, 'thumbavail' => $thumbavail, 'thumbinsubdir' => $thumbinsubdir, 'alt' => $alt, 'caption' => $caption, 'sort' => $sort,
 				);
 			
 				// create array to add the image-urls to yoast-seo xml-sitemap 
@@ -162,10 +167,16 @@ function show_gpxview($attr, $content = null)
 			}
 		}
 	}
-
+	// check if customsort is possible, if yes sort ascending
+	$rowsum = $imageNumber * ($imageNumber + 1) / 2;
+	$csort = array_column($data2, 'sort'); // $customsort
+	$arraysum = array_sum($csort);
+	if ( ($rowsum != $arraysum) or $ignoresort) {
+		$csort = array_column($data2, 'datesort');
+	}
+	
 	// sort images asending date-taken
 	if ($imageNumber > 0) {
-		$csort = array_column($data2, 'sort');
 		array_multisort($csort, SORT_ASC, $data2);
 	}
 
@@ -230,20 +241,30 @@ function show_gpxview($attr, $content = null)
 		
 		// loop through the data extracted from the images in folder and generate the div depending on the availability of thumbnails
 		foreach ($data2 as $data) {
-			//$alttext = 'Galerie-Bild ' . $imgnr . ' von ' .$imageNumber . ': ' . $data["title"] . '. ' . $data["descr"]; //Bildinfo ausgeben für SEO!
-			$alttext = $data["title"]; // alt-text for SEO 
+			// set the alt-tag for SEO
+			$alttext = $data["alt"] != '' ? $data["alt"] : $data["title"];
+
+			// get the image srcset if the image is in WP-Media-Catalog, otherwise not.
+			// Code-Example with thumbs with image srcset (https://github.com/artpolikarpov/fotorama/pull/337)
+			// <a href="img/large.jpg" srcset="img/large.jpg 1920w, img/medium.jpg 960w, img/little.jpg 480w"> <img src="img/thumb.jpg">
+			if ( $data['wpid'] > 0) {
+				$srcset = wp_get_attachment_image_srcset( $data['wpid'] );
+				$srcset = str_replace('http', 'img/http', $srcset);
+			}
 
 			if ($data['thumbinsubdir']) {
-				$htmlstring .= '<a href="' . $up_url . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$imageNumber .': ' . $data["title"] . 
+				$htmlstring .= '<a href="' . $up_url . '/' . $imgpath . '/' . $data["file"] . '.jpg"' . ' srcset="'. $srcset .'"' . ' data-caption="'.$imgnr.' / '.$imageNumber .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$htmlstring .= '<img loading="lazy" alt="' . $alttext .'" src="' . $up_url . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>';
+				// code for the thumbnails
+				$htmlstring .= '<img alt="' . $alttext .'" src="' . $up_url . '/' . $imgpath . '/' . $thumbsdir . '/' . $data["file"] . $thumbs . '"></a>'; 
 			
 			} elseif ($data['thumbavail']) {
-				$htmlstring .= '<a href="' . $up_url . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$imageNumber .': ' . $data["title"] . 
+				$htmlstring .= '<a href="' . $up_url . '/' . $imgpath . '/' . $data["file"] . '.jpg"' . ' srcset="'. $srcset .'"' . ' data-caption="'.$imgnr.' / '.$imageNumber .': ' . $data["title"] . 
 				'<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
-				$htmlstring .= '<img loading="lazy" alt="' . $alttext .'" src="' . $up_url . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>';
+				// this is for the thumbnails
+				$htmlstring .= '<img alt="' . $alttext .'" src="' . $up_url . '/' . $imgpath . '/' . $data["file"] . $thumbs . '"></a>'; 
 			
-			} else {
+			} else { // do not add srcset here, because this is for folders without thumbnails. If this is the case we don't have image-sizes for the srcset
 				$htmlstring .= '<img loading="lazy" alt="' . $alttext .'" src="' . $up_url . '/' . $imgpath . '/' . $data["file"] . '.jpg' . '" data-caption="'.$imgnr.' / '.$imageNumber .': ' . $data["title"] . '<br> ' . $data['camera'] . ' <br> ' . $data['focal'] . ' / f/' . $data['apperture'] . ' / ' . $data['exptime'] . 's / ISO' . $data['iso'] . ' / ' . $data['date'] . '">';
 			}
 
@@ -282,7 +303,7 @@ function show_gpxview($attr, $content = null)
 		}
 	}
 	
-	// close all divs
+	// close all html-divs
 	$htmlstring  .= '</div></div></div>';
 
 	// provide GPX-download if defined

@@ -20,7 +20,7 @@ function getGps($exifCoord, $hemi)
 	if ( ! is_array($exifCoord)) {
 		return null;
 	}
-	
+
 	$degrees = count($exifCoord) > 0 ? gps2Num($exifCoord[0]) : 0;
 	$minutes = count($exifCoord) > 1 ? gps2Num($exifCoord[1]) : 0;
 	$seconds = count($exifCoord) > 2 ? gps2Num($exifCoord[2]) : 0;
@@ -82,8 +82,9 @@ function getLonLat($Exif)
 	return array($lon, $lat);
 }
 
-function getEXIFData($Exif, $file, $imageNumber)
+function getEXIFData($Exif, $file, $imageNumber, $wpid)
 {
+	
 	// get title from IPTC-data
 	getimagesize($file, $info);
 	if (isset($info['APP13'])) {
@@ -95,48 +96,73 @@ function getEXIFData($Exif, $file, $imageNumber)
 		}
 	}
 	
+	// get foto capture data
 	$exptime = $Exif["EXIF"]["ExposureTime"] ?? '--';
-	$apperture = strtok(($Exif["EXIF"]["FNumber"] ?? '-'), '/');
+	$apperture = strtok(($Exif["EXIF"]["FNumber"] ?? '-'), ' / ');
 	$iso = $Exif["EXIF"]["ISOSpeedRatings"] ?? '--';
-	
 	if (array_key_exists('FocalLengthIn35mmFilm', $Exif["EXIF"])) {
 		$focal = $Exif["EXIF"]["FocalLengthIn35mmFilm"] . 'mm';
 	} else {
 		$focal = '--mm';
 	}
-	// Check setting of exif-field make and set $camera accordingly
+
+	// Check setting of exif-field make (the lens information, written by my Ligtroom-Plugin)
+	// alternatively I wrote lens information to the make.
 	if (array_key_exists('Make', $Exif['IFD0'])) {
 		$make = $Exif["IFD0"]["Make"] ?? '';
 		$make = preg_replace('/\s+/', ' ', $make);
 	} else {
 		$make = '';
 	}
+
+	// get lens data. $make is obsolete now!
+	$lens = $Exif["EXIF"]["UndefinedTag:0xA434"];
 	
+	// get the camera model
 	if (array_key_exists('Model', $Exif['IFD0'])) {
 		$model = $Exif["IFD0"]["Model"];
 	} else {
 		$model = '';
 	}
-	if (!ctype_alpha($make) && strlen($make)>0) {
-		$camera = $model . ' + '. $make;
+	// combine camera model and lens data
+	if (!ctype_alpha($lens) && strlen($lens)>0) {
+		$camera = $model . ' + '. $lens;
 	} else {
 		$camera = $model;
 	}
+
+	// get date-taken information
 	$datetaken = explode(":", $Exif["EXIF"]["DateTimeOriginal"]);
 	$datesort = $Exif["EXIF"]["DateTimeOriginal"];
-	$tags = $iptc["2#025"] ?? $title; 
+	$datetaken = strtok((string) $datetaken[2], ' ') . '.' . (string) $datetaken[1] . '.' . (string) $datetaken[0];
+
+	// get tags and $description
+	$tags = $iptc["2#025"]; 
 	if (array_key_exists('ImageDescription', $Exif["IFD0"])) {
 		$description = $Exif["IFD0"]["ImageDescription"];
-	} elseif ((!empty($tags) && is_array($tags))) {
-		$description = implode(", ", $tags);
-		$description = ""; // Tags kommen doch nicht in den Alt-Tag. das wird zu lang!
 	} else {
-		$description = $tags;
 		$description = ""; // sonst steht der Titel 2-mal im Alt-Tag
 	}
-	$datetaken = strtok((string) $datetaken[2], ' ') . '.' . (string) $datetaken[1] . '.' . (string) $datetaken[0];
 	
-	return array($exptime, $apperture, $iso, $focal, $camera, $datetaken, $datesort, $tags, $description, $title);
+	// get data fromt the wp database, if it is there
+	$sort = 0; $alt = ''; $caption = '';
+	if ($wpid > 0) {
+		$wpmediadata = get_post( $wpid, 'ARRAY_A');
+		$wptitle = $wpmediadata['post_title']; 
+		$title = $wptitle != '' ? $wptitle : $title;
+		$caption = $wpmediadata["post_excerpt"]; // 'Beschriftung' in the Media-Catalog, means caption
+		$wpdescription = $wpmediadata["post_content"]; // 'Beschreibung' in the Media-Catalog, means $description
+		$description = $wpdescription != '' ? $wpdescription : $description;
+
+		$sort = get_post_meta( $wpid, 'gallery_sort', true) ?? '';
+		$alt = get_post_meta( $wpid, '_wp_attachment_image_alt', true) ?? '' ;
+		
+		$meta = wp_get_attachment_metadata($wpid);
+		$wptags = $meta["image_meta"]["keywords"]; 
+		$tags = is_array($wptags) ? $wptags : $tags;
+	}
+	
+	return array($exptime, $apperture, $iso, $focal, $camera, $datetaken, $datesort, $tags, $description, $title, $alt, $caption, $sort);
 }
 
 

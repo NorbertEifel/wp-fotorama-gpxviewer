@@ -23,4 +23,13 @@
     background: #22222285; 
     
    }
+
+   @media only screen and (max-width:479px){
+    .fotorama__caption__wrap {
+      display:none;
+    }
+    .fotorama__caption {
+      display:none;
+    }
+   }
    .gpxpluga {display: none;}
