@@ -8,7 +8,7 @@ Although the images are expected in a folder of the Wordpress upload-directory t
 
 The Plugin sets additionally the custom-fields 'lon' and 'lat' of the post. This are the longitude and latitude of the first image or track-point. This coordinates are used by another plugin from me to show all posts on a map. See here: https://github.com/MartinvonBerg/wp_post_map_view_simple .
 
-This plugin does not provide an Admin-Panel for its settings or the specific settings for on post. As well it has no interface to act as a Gutenberg-Block. I needed some help for that. 
+This plugin does not provide an Admin-Panel for its settings or the specific settings for a post. As well it has no interface to act as a Gutenberg-Block. I needed some help for that. 
 
 
 # Usage
