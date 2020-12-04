@@ -33,13 +33,8 @@ This plugin does not provide an Admin-Panel for its settings or the specific set
 See under https://www.mvb1.de/info/wordpress-plugins/
 
 ## Screenshot
-<<<<<<< HEAD
 
 ![screenshot_live_site](./wp_fotorama_gpx.png)
- 
-=======
-![screenshot_live_site](./wp_fotorama_gpx.PNG)
->>>>>>> 16ff0dde7d880106b497cd74f3787e9a1038af3c
 
 # Note prior to installation
 1. Do a Backup!
