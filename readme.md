@@ -4,9 +4,12 @@ This is a Wordpress-Plugin to show a responsive image-slider with thumbnails (ba
 
 The Plugin is fully responsive and SEO-friendly. It adds the images of the slider to the Yoast-XML-Sitemap and sets the alt-tag of the images (but not for the thumbnails). It is possible to use either the image-slider or the map with height-chart alone.
 
-Although the images are expected in a folder of the Wordpress upload-directory they could have been added to the Wordpress-Media-Catalog before. If this is the case the responsive image srcset is used and the Wordpress-information of the Media-Catalog is used for the title and the alt-tag.
+Although the images are expected in a folder of the Wordpress upload-directory they could have been added to the Wordpress-Media-Catalog before. If this is the case the responsive image srcset is used and the Wordpress-information of the Media-Catalog is used for the title and the alt-tag. It works only with JPG-Files an not with videos. Fotorama is able to tackle with videos but I'm looking for other developpers to provide that addition.
 
 The Plugin sets additionally the custom-fields 'lon' and 'lat' of the post. This are the longitude and latitude of the first image or track-point. This coordinates are used by another plugin from me to show all posts on a map. See here: https://github.com/MartinvonBerg/wp_post_map_view_simple .
+
+This plugin does not provide an Admin-Panel for its settings or the specific settings for on post. As well it has no interface to act as a Gutenberg-Block. I needed some help for that. 
+
 
 # Usage
 
@@ -32,6 +35,7 @@ See under https://www.mvb1.de/info/wordpress-plugins/
 ## Screenshot
 
 ![screenshot_live_site](./wp_fotorama_gpx.png)
+ 
 
 # Note prior to installation
 1. Do a Backup!
